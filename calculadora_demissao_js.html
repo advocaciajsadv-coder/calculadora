@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Direitos Trabalhistas | Dra. Jackeline Santos</title>
+<meta name="description" content="Descubra se você foi demitido corretamente e quanto pode ter direito a receber. Cálculo gratuito com a Dra. Jackeline Santos, advogada trabalhista em Anápolis e Brasília.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --dark: #0D0D0D;
+    --dark-2: #161616;
+    --dark-3: #1E1E1E;
+    --dark-4: #252525;
+    --cream: #F5F0E8;
+    --cream-2: #EDE7D9;
+    --text: #F0EBE0;
+    --text-muted: #9A9080;
+    --danger: #E05252;
+    --success: #52A882;
+    --radius: 4px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 50% at 20% 0%, rgba(201,168,76,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(201,168,76,0.04) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  /* Header */
+  .header {
+    padding: 40px 0 32px;
+    text-align: center;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+    margin-bottom: 40px;
+  }
+
+  .header-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(201,168,76,0.4);
+    padding: 6px 16px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(26px, 5vw, 40px);
+    font-weight: 900;
+    line-height: 1.15;
+    color: var(--cream);
+    margin-bottom: 14px;
+  }
+
+  .header h1 span {
+    color: var(--gold);
+    display: block;
+  }
+
+  .header p {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* Progress */
+  .progress-bar {
+    height: 2px;
+    background: var(--dark-4);
+    border-radius: 2px;
+    margin-bottom: 36px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+
+  .step-label {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .step-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--dark-4);
+  }
+
+  /* Cards / Steps */
+  .step {
+    display: none;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .step.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Form elements */
+  .field {
+    margin-bottom: 20px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .field input, .field select {
+    width: 100%;
+    background: var(--dark-3);
+    border: 1px solid var(--dark-4);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .field input:focus, .field select:focus {
+    border-color: var(--gold);
+  }
+
+  .field input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.5;
+  }
+
+  .field select option {
+    background: var(--dark-3);
+  }
+
+  /* Radio group */
+  .radio-group {
+    display: grid;
+    gap: 10px;
+  }
+
+  .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--dark-3);
+    border: 1px solid var(--dark-4);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+  }
+
+  .radio-option:hover {
+    border-color: rgba(201,168,76,0.4);
+  }
+
+  .radio-option.selected {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.08);
+  }
+
+  .radio-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--dark-4);
+    flex-shrink: 0;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .radio-option.selected .radio-dot {
+    border-color: var(--gold);
+    background: var(--gold);
+  }
+
+  .radio-option.selected .radio-dot::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--dark);
+  }
+
+  /* Question card */
+  .question-card {
+    background: var(--dark-2);
+    border: 1px solid var(--dark-4);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+
+  .question-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+
+  /* Fields row */
+  .fields-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 480px) {
+    .fields-row { grid-template-columns: 1fr; }
+  }
+
+  /* Buttons */
+  .btn-primary {
+    width: 100%;
+    background: var(--gold);
+    color: var(--dark);
+    border: none;
+    border-radius: var(--radius);
+    padding: 16px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  .btn-primary:hover {
+    background: var(--gold-light);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--dark-4);
+    border-radius: var(--radius);
+    padding: 12px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--text-muted);
+    color: var(--text);
+  }
+
+  /* Lead gate */
+  .lead-gate {
+    background: var(--dark-2);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+  }
+
+  .lead-gate-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 8px;
+    line-height: 1.35;
+  }
+
+  .lead-gate-sub {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  .privacy-note {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 12px;
+    opacity: 0.7;
+  }
+
+  /* Result */
+  .result-hero {
+    background: linear-gradient(135deg, var(--dark-2) 0%, rgba(201,168,76,0.08) 100%);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: var(--radius);
+    padding: 36px 28px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .result-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  .result-value {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(40px, 10vw, 64px);
+    font-weight: 900;
+    color: var(--gold-light);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .result-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 0;
+  }
+
+  .result-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 2px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  .result-status.alert {
+    background: rgba(224,82,82,0.12);
+    color: #E08080;
+    border: 1px solid rgba(224,82,82,0.25);
+  }
+
+  .result-status.ok {
+    background: rgba(82,168,130,0.12);
+    color: #80C8A0;
+    border: 1px solid rgba(82,168,130,0.25);
+  }
+
+  /* Breakdown */
+  .breakdown {
+    background: var(--dark-2);
+    border: 1px solid var(--dark-4);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .breakdown-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--dark-4);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 14px;
+  }
+
+  .breakdown-item:last-child { border-bottom: none; }
+
+  .breakdown-name { color: var(--text-muted); }
+  .breakdown-amount { 
+    font-weight: 600; 
+    color: var(--gold-light);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .breakdown-item.total {
+    background: rgba(201,168,76,0.06);
+    border-top: 1px solid rgba(201,168,76,0.2);
+  }
+
+  .breakdown-item.total .breakdown-name {
+    font-weight: 700;
+    color: var(--cream);
+    font-size: 15px;
+  }
+
+  .breakdown-item.total .breakdown-amount {
+    font-size: 18px;
+    color: var(--gold);
+  }
+
+  /* CTA */
+  .cta-card {
+    background: var(--dark-2);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: var(--radius);
+    padding: 28px;
+    text-align: center;
+  }
+
+  .cta-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+
+  .cta-card p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .btn-whatsapp {
+    width: 100%;
+    background: #25D366;
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 16px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .btn-whatsapp:hover {
+    background: #20BB5A;
+    transform: translateY(-1px);
+  }
+
+  .attorney-note {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding-top: 40px;
+    border-top: 1px solid var(--dark-4);
+    margin-top: 40px;
+  }
+
+  .footer-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--cream);
+    margin-bottom: 4px;
+  }
+
+  .footer-oab {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+
+  .footer-disclaimer {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 12px;
+    opacity: 0.5;
+    line-height: 1.7;
+  }
+
+  /* Error */
+  .error-msg {
+    color: #E08080;
+    font-size: 12px;
+    margin-top: 6px;
+    display: none;
+  }
+
+  .field.has-error input,
+  .field.has-error select {
+    border-color: var(--danger);
+  }
+
+  .field.has-error .error-msg {
+    display: block;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--dark-4);
+    margin: 24px 0;
+  }
+
+  /* Tip box */
+  .tip-box {
+    background: rgba(201,168,76,0.06);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .tip-box strong { color: var(--gold); }
+
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-badge">Ferramenta Gratuita</div>
+    <h1>Você foi demitido <span>corretamente?</span></h1>
+    <p>Calcule agora quanto você pode ter direito a receber. Análise feita com base nas leis trabalhistas brasileiras.</p>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width: 16%"></div>
+  </div>
+
+  <!-- STEP 1: Dados do vínculo -->
+  <div class="step active" id="step1">
+    <div class="step-label">Etapa 1 de 6 — Dados do vínculo</div>
+
+    <div class="question-card">
+      <h3>Informe os dados do seu contrato de trabalho</h3>
+
+      <div class="fields-row">
+        <div class="field" id="f-admissao">
+          <label>Data de Admissão</label>
+          <input type="date" id="admissao" />
+          <span class="error-msg">Informe a data de admissão</span>
+        </div>
+        <div class="field" id="f-demissao">
+          <label>Data de Demissão</label>
+          <input type="date" id="demissao" />
+          <span class="error-msg">Informe a data de demissão</span>
+        </div>
+      </div>
+
+      <div class="field" id="f-salario">
+        <label>Último Salário (R$)</label>
+        <input type="number" id="salario" placeholder="Ex: 1800,00" min="0" step="0.01" />
+        <span class="error-msg">Informe o salário</span>
+      </div>
+
+      <div class="field" id="f-tipo">
+        <label>Tipo de Demissão</label>
+        <select id="tipo">
+          <option value="">Selecione...</option>
+          <option value="sem_justa_causa">Sem justa causa (empresa me demitiu)</option>
+          <option value="pedido">Pedido de demissão</option>
+          <option value="acordo">Acordo mútuo (art. 484-A CLT)</option>
+          <option value="justa_causa">Justa causa</option>
+          <option value="rescisao_indireta">Rescisão indireta (falta grave do empregador)</option>
+        </select>
+        <span class="error-msg">Selecione o tipo de demissão</span>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="goStep(2)">Continuar</button>
+  </div>
+
+  <!-- STEP 2: Férias e 13º -->
+  <div class="step" id="step2">
+    <div class="step-label">Etapa 2 de 6 — Férias e 13º salário</div>
+
+    <div class="question-card">
+      <h3>Você recebeu férias e 13º corretamente?</h3>
+
+      <div class="field">
+        <label>Férias vencidas (períodos não tirados)</label>
+        <div class="radio-group" id="ferias-group">
+          <div class="radio-option" onclick="select(this,'ferias','0')">
+            <div class="radio-dot"></div>
+            <span>Nenhum período pendente</span>
+          </div>
+          <div class="radio-option" onclick="select(this,'ferias','1')">
+            <div class="radio-dot"></div>
+            <span>1 período de férias pendente</span>
+          </div>
+          <div class="radio-option" onclick="select(this,'ferias','2')">
+            <div class="radio-dot"></div>
+            <span>2 períodos de férias pendentes</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field">
+        <label>13º salário do ano atual</label>
+        <div class="radio-group" id="decimo-group">
+          <div class="radio-option" onclick="select(this,'decimo','recebeu')">
+            <div class="radio-dot"></div>
+            <span>Recebi o 13º proporcional na rescisão</span>
+          </div>
+          <div class="radio-option" onclick="select(this,'decimo','nao_recebeu')">
+            <div class="radio-dot"></div>
+            <span>Não recebi o 13º proporcional</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="goStep(3)">Continuar</button>
+    <button class="btn-ghost" onclick="goStep(1)">Voltar</button>
+  </div>
+
+  <!-- STEP 3: FGTS -->
+  <div class="step" id="step3">
+    <div class="step-label">Etapa 3 de 6 — FGTS</div>
+
+    <div class="question-card">
+      <h3>Sobre o FGTS</h3>
+
+      <div class="tip-box">
+        <strong>Importante:</strong> O FGTS deve ser depositado mensalmente durante todo o contrato. Se houver irregularidade, você pode cobrar na Justiça do Trabalho.
+      </div>
+
+      <div class="field">
+        <label>O FGTS foi depositado regularmente?</label>
+        <div class="radio-group" id="fgts-group">
+          <div class="radio-option" onclick="select(this,'fgts','sim')">
+            <div class="radio-dot"></div>
+            <span>Sim, sempre foi depositado</span>
+          </div>
+          <div class="radio-option" onclick="select(this,'fgts','parcial')">
+            <div class="radio-dot"></div>
+            <span>Parcialmente / não sei ao certo</span>
+          </div>
+          <div class="radio-option" onclick="select(this,'fgts','nao')">
+            <div class="radio-dot"></div>
+            <span>Não foi depositado / nunca ouvi falar</span>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+    <button class="btn-primary" onclick="goStep(4)">Continuar</button>
+    <button class="btn-ghost" onclick="goStep(2)">Voltar</button>
+  </div>
+
+  <!-- STEP 4: Violações -->
+  <div class="step" id="step4">
+    <div class="step-label">Etapa 4 de 6 — Outras violações</div>
+
+    <div class="question-card">
+      <h3>Durante o contrato, alguma dessas situações ocorreu?</h3>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Selecione todas que se aplicam.</p>
+
+      <div id="violacoes-list" class="radio-group" style="gap:8px">
+        <div class="radio-option" style="cursor:pointer" onclick="toggleViolacao(this,'horas_extras')">
+          <div class="radio-dot" style="border-radius:3px"></div>
+          <span>Horas extras não pagas ou pagas abaixo</span>
+        </div>
+        <div class="radio-option" style="cursor:pointer" onclick="toggleViolacao(this,'insalubridade')">
+          <div class="radio-dot" style="border-radius:3px"></div>
+          <span>Trabalhei com produto químico, barulho intenso, calor extremo ou risco de vida — e não recebi adicional por isso</span>
+        </div>
+        <div class="radio-option" style="cursor:pointer" onclick="toggleViolacao(this,'assedio')">
+          <div class="radio-dot" style="border-radius:3px"></div>
+          <span>Assédio moral ou humilhações no trabalho</span>
+        </div>
+        <div class="radio-option" style="cursor:pointer" onclick="toggleViolacao(this,'acidente')">
+          <div class="radio-dot" style="border-radius:3px"></div>
+          <span>Acidente de trabalho ou doença ocupacional</span>
+        </div>
+        <div class="radio-option" style="cursor:pointer" onclick="toggleViolacao(this,'sem_registro')">
+          <div class="radio-dot" style="border-radius:3px"></div>
+          <span>Trabalhei sem carteira assinada por algum período</span>
+        </div>
+        <div class="radio-option" style="cursor:pointer" onclick="toggleViolacao(this,'nenhuma')">
+          <div class="radio-dot" style="border-radius:3px"></div>
+          <span>Nenhuma das anteriores</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="goStep(5)">Continuar</button>
+    <button class="btn-ghost" onclick="goStep(3)">Voltar</button>
+  </div>
+
+  <!-- STEP 5: Lead gate -->
+  <div class="step" id="step5">
+    <div class="step-label">Etapa 5 de 6 — Seus dados</div>
+
+    <div class="lead-gate">
+      <div class="result-label" style="text-align:left;margin-bottom:6px">Quase lá</div>
+      <div class="lead-gate-title">Seu cálculo está pronto.</div>
+      <div class="lead-gate-sub">Para visualizar o valor estimado dos seus direitos trabalhistas, informe seus dados abaixo. É gratuito.</div>
+
+      <div class="field" id="f-nome">
+        <label>Nome completo</label>
+        <input type="text" id="nome" placeholder="Seu nome" />
+        <span class="error-msg">Informe seu nome</span>
+      </div>
+
+      <div class="field" id="f-telefone">
+        <label>WhatsApp</label>
+        <input type="tel" id="telefone" placeholder="(62) 9 0000-0000" />
+        <span class="error-msg">Informe seu WhatsApp</span>
+      </div>
+
+      <div class="field" id="f-email">
+        <label>E-mail</label>
+        <input type="email" id="email" placeholder="seuemail@exemplo.com" />
+        <span class="error-msg">Informe um e-mail válido</span>
+      </div>
+
+      <button class="btn-primary" onclick="calcularEMostrar()">Ver meu resultado</button>
+      <div class="privacy-note">Seus dados são confidenciais e não serão compartilhados com terceiros.</div>
+    </div>
+
+    <button class="btn-ghost" onclick="goStep(4)">Voltar</button>
+  </div>
+
+  <!-- STEP 6: Resultado -->
+  <div class="step" id="step6">
+    <div class="step-label">Resultado — Análise dos seus direitos</div>
+
+    <div class="result-hero">
+      <div class="result-label">Valor estimado dos seus direitos</div>
+      <div class="result-value" id="resultTotal">R$ 0</div>
+      <div class="result-desc" id="resultDesc">Cálculo baseado nas informações fornecidas</div>
+    </div>
+
+    <div id="statusBox"></div>
+
+    <div class="breakdown" id="breakdown">
+      <div class="breakdown-header">Detalhamento das verbas</div>
+      <div id="breakdownItems"></div>
+    </div>
+
+    <div class="tip-box" id="alertaExtra" style="display:none">
+      <strong>Atenção:</strong> <span id="alertaTexto"></span>
+    </div>
+
+    <div class="cta-card">
+      <h3>Próximo passo: análise gratuita</h3>
+      <p>Este cálculo é uma estimativa. Cada caso tem particularidades que podem aumentar significativamente esse valor. Fale agora com a Dra. Jackeline para uma análise completa e gratuita.</p>
+      <a id="whatsappLink" class="btn-whatsapp" href="#" target="_blank">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Falar com a Dra. Jackeline agora
+      </a>
+      <div class="attorney-note">
+        Dra. Jackeline Santos Lima de Almeida<br>
+        OAB/GO 55.192 | OAB/DF 85.368 — Advogada Trabalhista e Previdenciária
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-name">JS Advocacia</div>
+    <div class="footer-oab">OAB/GO 55.192 | OAB/DF 85.368 | Anápolis–GO e Brasília–DF</div>
+    <div class="footer-disclaimer">
+      Esta calculadora fornece estimativas com fins informativos e educacionais.<br>
+      Não constitui consulta jurídica. Os valores reais dependem de análise completa de cada caso.<br>
+      Advocacia: Jackeline Santos Lima de Almeida — CNPJ 57.393.265/0001-14
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // State
+  const state = {
+    admissao: null,
+    demissao: null,
+    salario: 0,
+    tipo: '',
+    ferias: null,
+    decimo: null,
+    fgts: null,
+    sacou: null,
+    violacoes: new Set(),
+    nome: '',
+    telefone: '',
+    email: ''
+  };
+
+  const steps = ['step1','step2','step3','step4','step5','step6'];
+  const progressMap = [16, 33, 50, 66, 83, 100];
+  let currentStep = 1;
+
+  function goStep(n) {
+    if (!validateStep(currentStep)) return;
+    document.getElementById('step' + currentStep).classList.remove('active');
+    document.getElementById('step' + n).classList.add('active');
+    currentStep = n;
+    document.getElementById('progressFill').style.width = progressMap[n-1] + '%';
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+  function validateStep(n) {
+    let ok = true;
+    if (n === 1) {
+      const adm = document.getElementById('admissao');
+      const dem = document.getElementById('demissao');
+      const sal = document.getElementById('salario');
+      const tip = document.getElementById('tipo');
+      clearError('f-admissao'); clearError('f-demissao'); clearError('f-salario'); clearError('f-tipo');
+      if (!adm.value) { showError('f-admissao'); ok = false; }
+      if (!dem.value) { showError('f-demissao'); ok = false; }
+      if (!sal.value || parseFloat(sal.value) <= 0) { showError('f-salario'); ok = false; }
+      if (!tip.value) { showError('f-tipo'); ok = false; }
+      if (ok) {
+        state.admissao = new Date(adm.value + 'T00:00:00');
+        state.demissao = new Date(dem.value + 'T00:00:00');
+        state.salario = parseFloat(sal.value);
+        state.tipo = tip.value;
+      }
+    }
+    if (n === 5) {
+      const nome = document.getElementById('nome');
+      const tel = document.getElementById('telefone');
+      const em = document.getElementById('email');
+      clearError('f-nome'); clearError('f-telefone'); clearError('f-email');
+      if (!nome.value.trim()) { showError('f-nome'); ok = false; }
+      if (!tel.value.trim() || tel.value.length < 8) { showError('f-telefone'); ok = false; }
+      if (!em.value.trim() || !em.value.includes('@')) { showError('f-email'); ok = false; }
+      if (ok) {
+        state.nome = nome.value.trim();
+        state.telefone = tel.value.trim();
+        state.email = em.value.trim();
+      }
+    }
+    return ok;
+  }
+
+  function showError(id) {
+    document.getElementById(id).classList.add('has-error');
+  }
+  function clearError(id) {
+    document.getElementById(id).classList.remove('has-error');
+  }
+
+  function select(el, group, value) {
+    document.querySelectorAll('#' + group + '-group .radio-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    state[group] = value;
+  }
+
+  function toggleViolacao(el, v) {
+    if (v === 'nenhuma') {
+      state.violacoes.clear();
+      document.querySelectorAll('#violacoes-list .radio-option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      state.violacoes.add('nenhuma');
+      return;
+    }
+    state.violacoes.delete('nenhuma');
+    document.querySelectorAll('#violacoes-list .radio-option').forEach(o => {
+      if (o.getAttribute('onclick') && o.getAttribute('onclick').includes("'nenhuma'")) o.classList.remove('selected');
+    });
+    if (state.violacoes.has(v)) {
+      state.violacoes.delete(v);
+      el.classList.remove('selected');
+    } else {
+      state.violacoes.add(v);
+      el.classList.add('selected');
+    }
+  }
+
+  function mesesEntre(d1, d2) {
+    return (d2.getFullYear() - d1.getFullYear()) * 12 + (d2.getMonth() - d1.getMonth()) + (d2.getDate() >= d1.getDate() ? 0 : -1);
+  }
+
+  function calcularEMostrar() {
+    if (!validateStep(5)) return;
+
+    const meses = mesesEntre(state.admissao, state.demissao);
+    const anos = meses / 12;
+    const sal = state.salario;
+    const tipo = state.tipo;
+
+    let verbas = [];
+
+    // Saldo de salário (estimado 15 dias)
+    const saldoSalario = sal / 30 * 15;
+    verbas.push({ nome: 'Saldo de salário (estimado)', valor: saldoSalario });
+
+    // Aviso prévio
+    let avisoPrevio = 0;
+    if (tipo === 'sem_justa_causa' || tipo === 'rescisao_indireta') {
+      const diasAviso = Math.min(30 + Math.floor(anos) * 3, 90);
+      avisoPrevio = sal / 30 * diasAviso;
+      verbas.push({ nome: `Aviso prévio (${diasAviso} dias)`, valor: avisoPrevio });
+    }
+
+    // Férias vencidas
+    const feriasVal = parseInt(state.ferias || 0);
+    if (feriasVal > 0) {
+      const feriasPorPeriodo = sal + (sal / 3); // férias + 1/3
+      const totalFerias = feriasPorPeriodo * feriasVal;
+      verbas.push({ nome: `Férias vencidas (${feriasVal}x) + 1/3`, valor: totalFerias });
+    }
+
+    // Férias proporcionais
+    const mesesNoAno = state.demissao.getMonth() - (new Date(state.demissao.getFullYear(), 0, 1)).getMonth();
+    const feriasProp = (sal / 12 * (state.demissao.getMonth() + 1)) + ((sal / 12 * (state.demissao.getMonth() + 1)) / 3);
+    if (tipo !== 'pedido') {
+      verbas.push({ nome: 'Férias proporcionais + 1/3', valor: Math.max(feriasProp, sal/12) });
+    }
+
+    // 13º proporcional
+    if (state.decimo === 'nao_recebeu') {
+      const decimoProp = sal / 12 * (state.demissao.getMonth() + 1);
+      verbas.push({ nome: '13º salário proporcional', valor: decimoProp });
+    }
+
+    // FGTS multa 40%
+    let fgtsMulta = 0;
+    if (tipo === 'sem_justa_causa' || tipo === 'rescisao_indireta') {
+      const fgtsBase = sal * 0.08 * meses;
+      fgtsMulta = fgtsBase * 0.40;
+      verbas.push({ nome: 'Multa FGTS (40%)', valor: fgtsMulta });
+      if (state.fgts === 'nao' || state.fgts === 'parcial') {
+        verbas.push({ nome: 'FGTS não depositado (estimado)', valor: fgtsBase * 0.6 });
+      }
+    }
+
+    // Acordo mútuo (FGTS 20%)
+    if (tipo === 'acordo') {
+      const fgtsBase = sal * 0.08 * meses;
+      verbas.push({ nome: 'Multa FGTS — acordo mútuo (20%)', valor: fgtsBase * 0.20 });
+    }
+
+    // Violações
+    if (state.violacoes.has('horas_extras')) {
+      verbas.push({ nome: 'Horas extras (estimativa)', valor: sal * 0.5 * Math.min(meses, 24) });
+    }
+    if (state.violacoes.has('insalubridade')) {
+      verbas.push({ nome: 'Adicional de insalubridade (estimativa)', valor: sal * 0.20 * Math.min(meses, 24) });
+    }
+    if (state.violacoes.has('assedio')) {
+      verbas.push({ nome: 'Danos morais — assédio (estimativa mínima)', valor: sal * 5 });
+    }
+    if (state.violacoes.has('acidente')) {
+      verbas.push({ nome: 'Indenização por acidente/doença (estimativa)', valor: sal * 12 });
+    }
+
+    const total = verbas.reduce((s, v) => s + v.valor, 0);
+
+    // Render
+    document.getElementById('resultTotal').textContent = formatReal(total);
+    document.getElementById('resultDesc').textContent = `Estimativa para ${state.nome.split(' ')[0]}, considerando ${meses} meses de contrato`;
+
+    // Status
+    const statusBox = document.getElementById('statusBox');
+    let alertas = [];
+    if (tipo === 'sem_justa_causa' || tipo === 'rescisao_indireta') alertas.push('Você pode ter direito a aviso prévio e multa do FGTS');
+    if (state.fgts === 'nao') alertas.push('FGTS não depositado pode ser cobrado na Justiça');
+    if (state.violacoes.has('sem_registro')) alertas.push('Trabalho sem registro pode gerar direito a todos os benefícios retroativos');
+
+    if (alertas.length > 0) {
+      statusBox.innerHTML = `<div class="result-status alert">⚠ Foram identificados possíveis direitos violados</div>`;
+      document.getElementById('alertaExtra').style.display = 'block';
+      document.getElementById('alertaTexto').textContent = alertas.join('. ') + '. Esses valores podem ser significativamente maiores após análise completa.';
+    } else {
+      statusBox.innerHTML = `<div class="result-status ok">✓ Estimativa calculada com sucesso</div>`;
+    }
+
+    // Breakdown
+    const items = document.getElementById('breakdownItems');
+    items.innerHTML = verbas.map(v => `
+      <div class="breakdown-item">
+        <span class="breakdown-name">${v.nome}</span>
+        <span class="breakdown-amount">${formatReal(v.valor)}</span>
+      </div>
+    `).join('') + `
+      <div class="breakdown-item total">
+        <span class="breakdown-name">Total estimado</span>
+        <span class="breakdown-amount">${formatReal(total)}</span>
+      </div>
+    `;
+
+    // WhatsApp link
+    const msg = encodeURIComponent(
+      `Olá, Dra. Jackeline! Me chamo ${state.nome} e acabei de usar a calculadora no site. O resultado mostrou R$ ${formatReal(total)} em direitos trabalhistas. Gostaria de agendar uma análise gratuita do meu caso.`
+    );
+    document.getElementById('whatsappLink').href = `https://wa.me/5562985566018?text=${msg}`;
+
+    goStep(6);
+  }
+
+  function formatReal(v) {
+    return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+</script>
+</body>
+</html>
