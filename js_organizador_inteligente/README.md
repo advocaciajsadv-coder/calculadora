@@ -8,7 +8,8 @@ tudo rodando **localmente**, sem enviar documentos para servidores externos
 sem autorização explícita do usuário.
 
 Veja `docs/ARCHITECTURE.md` para o detalhamento completo dos módulos e do
-pipeline de organização.
+pipeline de organização, e `docs/GUIA_INSTALACAO.md` para o passo a passo
+de instalação em uma máquina Windows.
 
 ## Estrutura do projeto
 
