@@ -1,0 +1,30 @@
+# Backend - JS Organizador Inteligente
+# Framework web local (consumido pelo frontend Flutter via HTTP/WebSocket)
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.3
+
+# OCR
+pytesseract==0.3.13
+pdf2image==1.17.0
+ocrmypdf==16.6.0
+
+# PDF
+pypdf==5.1.0
+
+# Conversão de imagens
+Pillow==11.0.0
+
+# IA (opcional, apenas se ai_provider=openai)
+openai==1.57.0
+
+# Segurança / criptografia local
+cryptography==44.0.0
+
+# Testes
+pytest==8.3.4
+pytest-asyncio==0.24.0
+httpx==0.28.1
+
+# Empacotamento em .exe
+pyinstaller==6.11.1
