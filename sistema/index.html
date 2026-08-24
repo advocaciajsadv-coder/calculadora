@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Documentos | JS Advocacia</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Tela de acesso (PIN local, opcional) -->
+<div id="lockScreen" style="display:none;">
+  <div class="lock-box">
+    <h1>JS Advocacia</h1>
+    <p>Gerador de documentos — digite o PIN de acesso deste computador</p>
+    <input type="password" id="pinInput" inputmode="numeric" maxlength="8" placeholder="••••" autofocus>
+    <div class="lock-error" id="pinError"></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" id="pinSubmit">Entrar</button>
+  </div>
+</div>
+
+<div id="app" style="display:none;">
+  <nav class="sidebar">
+    <div class="brand">
+      <span class="badge">Gerador de Documentos</span>
+      <h1>JS Advocacia</h1>
+    </div>
+
+    <div class="nav-group-label">Geral</div>
+    <a class="nav-item" data-view="painel" href="#/painel"><span class="icon">&#9670;</span> Painel</a>
+
+    <div class="nav-group-label">Documentos</div>
+    <a class="nav-item" data-view="contratos" href="#/contratos"><span class="icon">&#128196;</span> Contratos</a>
+    <a class="nav-item" data-view="procuracoes" href="#/procuracoes"><span class="icon">&#128221;</span> Procurações</a>
+    <a class="nav-item" data-view="hipossuficiencia" href="#/hipossuficiencia"><span class="icon">&#9878;</span> Hipossuficiência</a>
+    <a class="nav-item" data-view="recibos" href="#/recibos"><span class="icon">&#128176;</span> Recibos</a>
+    <a class="nav-item" data-view="propostas" href="#/propostas"><span class="icon">&#128203;</span> Propostas</a>
+    <a class="nav-item" data-view="historico" href="#/historico"><span class="icon">&#128193;</span> Histórico</a>
+
+    <div class="nav-group-label">Sistema</div>
+    <a class="nav-item" data-view="configuracoes" href="#/configuracoes"><span class="icon">&#9881;</span> Configurações</a>
+
+    <div class="sidebar-footer">
+      Clientes, processos e audiências continuam no Tramitação Inteligente.<br>
+      Aqui é só o gerador de documentos, salvo neste navegador.
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- PAINEL -->
+    <section class="view" id="view-painel">
+      <div class="view-header">
+        <h2>Painel</h2>
+        <p>Gerador de documentos do escritório — contrato, procuração, declaração de hipossuficiência, recibo e proposta de honorários.</p>
+      </div>
+      <div class="grid cols-3" id="painelStats"></div>
+      <div class="card">
+        <h3>Atalhos rápidos</h3>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="#/contratos">Gerar contrato</a>
+          <a class="btn" href="#/procuracoes">Gerar procuração</a>
+          <a class="btn" href="#/hipossuficiencia">Gerar declaração</a>
+          <a class="btn" href="#/recibos">Gerar recibo</a>
+          <a class="btn" href="#/propostas">Gerar proposta</a>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Como funciona</h3>
+        <p class="field-hint">Escolha o documento no menu ao lado, preencha os dados do cliente e do caso, clique em "Gerar / Atualizar documento" para ver a prévia, ajuste o texto se quiser, e baixe em Word (.doc) ou imprima/salve em PDF. Nada daqui sincroniza com o Tramitação Inteligente — os dados do cliente são digitados na hora, em cada documento.</p>
+      </div>
+    </section>
+
+    <!-- CONTRATOS -->
+    <section class="view" id="view-contratos"></section>
+
+    <!-- PROCURAÇÕES -->
+    <section class="view" id="view-procuracoes"></section>
+
+    <!-- HIPOSSUFICIÊNCIA -->
+    <section class="view" id="view-hipossuficiencia"></section>
+
+    <!-- RECIBOS -->
+    <section class="view" id="view-recibos"></section>
+
+    <!-- PROPOSTAS -->
+    <section class="view" id="view-propostas"></section>
+
+    <!-- HISTÓRICO -->
+    <section class="view" id="view-historico">
+      <div class="view-header">
+        <h2>Histórico de documentos</h2>
+        <p>Todos os documentos gerados ficam salvos aqui, neste navegador.</p>
+      </div>
+      <div class="card"><div id="historicoTableWrap"></div></div>
+    </section>
+
+    <!-- CONFIGURAÇÕES -->
+    <section class="view" id="view-configuracoes">
+      <div class="view-header">
+        <h2>Configurações</h2>
+        <p>Dados do escritório usados automaticamente nos documentos, PIN de acesso e backup.</p>
+      </div>
+      <div class="card">
+        <h3>Dados do escritório</h3>
+        <form id="configForm">
+          <div class="grid cols-2">
+            <div class="field span-2"><label>Nome da advogada</label><input id="cfg-nome"></div>
+            <div class="field"><label>OAB</label><input id="cfg-oab"></div>
+            <div class="field"><label>CNPJ</label><input id="cfg-cnpj"></div>
+            <div class="field span-2"><label>Endereço do escritório</label><input id="cfg-endereco"></div>
+            <div class="field"><label>Cidade</label><input id="cfg-cidade"></div>
+            <div class="field"><label>UF</label><input id="cfg-uf"></div>
+            <div class="field"><label>Telefone</label><input id="cfg-telefone"></div>
+            <div class="field"><label>E-mail</label><input id="cfg-email"></div>
+          </div>
+          <div class="btn-row"><button class="btn btn-primary" type="submit">Salvar dados</button></div>
+        </form>
+      </div>
+      <div class="card">
+        <h3>PIN de acesso (opcional)</h3>
+        <p class="field-hint" style="margin-bottom:12px">Aviso: é apenas uma trava simples deste navegador, não é segurança de verdade — qualquer pessoa com acesso ao computador e ao navegador ainda pode ver os arquivos. Não armazene dados de terceiros que exijam sigilo forte além do PIN.</p>
+        <div class="grid cols-2">
+          <div class="field"><label>Novo PIN</label><input type="password" id="cfg-pin" maxlength="8" placeholder="Deixe em branco para remover"></div>
+          <div class="field"><label>Confirmar PIN</label><input type="password" id="cfg-pinConfirm" maxlength="8"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="cfg-savePin">Salvar PIN</button>
+          <button class="btn btn-danger" id="cfg-removePin">Remover PIN</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Backup dos dados</h3>
+        <p class="field-hint" style="margin-bottom:12px">Os dados ficam só neste navegador. Exporte um backup regularmente — obrigatório antes de limpar o cache/histórico do navegador ou trocar de computador.</p>
+        <div class="btn-row">
+          <button class="btn" id="btn-exportBackup">Exportar backup (.json)</button>
+          <label class="btn" style="cursor:pointer">Importar backup<input type="file" id="btn-importBackup" accept=".json" style="display:none"></label>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div id="printArea" style="display:none"></div>
+<div class="toast" id="toast"></div>
+
+<script src="js/storage.js"></script>
+<script src="js/documentos.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
