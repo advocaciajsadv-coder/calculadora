@@ -1,6 +1,7 @@
 /* ==========================================================================
    documentos.js — Geradores de documentos (contrato, procuração,
    declaração de hipossuficiência, recibo, proposta de honorários)
+   Os dados do cliente são digitados direto em cada formulário.
    ========================================================================== */
 
 const Docs = (() => {
@@ -57,32 +58,68 @@ const Docs = (() => {
     return (Number(v) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
-  function hojeExtenso() {
-    const cfg = DB.getConfig();
-    const d = new Date();
-    const dia = d.getDate();
-    const mes = d.toLocaleDateString('pt-BR', { month: 'long' });
-    const ano = d.getFullYear();
-    const cidade = cfg.cidade || 'Anápolis';
-    const uf = cfg.uf || 'GO';
-    return `${cidade}/${uf}, ${dia} de ${mes} de ${ano}`;
-  }
-
   function dataExtensoFromInput(isoDate) {
     const cfg = DB.getConfig();
     const cidade = cfg.cidade || 'Anápolis';
     const uf = cfg.uf || 'GO';
-    if (!isoDate) return hojeExtenso();
-    const [y, m, d] = isoDate.split('-').map(Number);
-    const dt = new Date(y, m - 1, d);
-    const mes = dt.toLocaleDateString('pt-BR', { month: 'long' });
-    return `${cidade}/${uf}, ${d} de ${mes} de ${y}`;
+    let d, m, y;
+    if (!isoDate) {
+      const hoje = new Date();
+      d = hoje.getDate(); m = hoje.getMonth() + 1; y = hoje.getFullYear();
+    } else {
+      [y, m, d] = isoDate.split('-').map(Number);
+    }
+    const mesNome = new Date(y, m - 1, d).toLocaleDateString('pt-BR', { month: 'long' });
+    return `${cidade}/${uf}, ${d} de ${mesNome} de ${y}`;
+  }
+
+  // ---------------- Campos de cliente (digitados direto no formulário) ----------------
+  function clienteFieldsHtml(prefix, opts) {
+    opts = opts || {};
+    return `
+      <div class="field span-2"><label>Nome completo do cliente</label><input id="${prefix}-nome" placeholder="Nome completo"></div>
+      <div class="field"><label>CPF</label><input id="${prefix}-cpf" placeholder="000.000.000-00"></div>
+      ${opts.compact ? '' : `
+      <div class="field"><label>RG</label><input id="${prefix}-rg"></div>
+      <div class="field"><label>Nacionalidade</label><input id="${prefix}-nacionalidade" value="brasileira"></div>
+      <div class="field"><label>Estado civil</label>
+        <select id="${prefix}-estadocivil">
+          <option>solteiro(a)</option><option>casado(a)</option><option>divorciado(a)</option>
+          <option>viúvo(a)</option><option>união estável</option>
+        </select>
+      </div>
+      <div class="field"><label>Profissão</label><input id="${prefix}-profissao"></div>
+      <div class="field span-2"><label>Endereço</label><input id="${prefix}-endereco" placeholder="Rua, número, bairro"></div>
+      <div class="field"><label>Cidade/UF</label><input id="${prefix}-cidadeuf" placeholder="Anápolis/GO"></div>
+      `}
+    `;
+  }
+
+  function readClienteFromInputs(prefix, opts) {
+    opts = opts || {};
+    const val = (id) => {
+      const el = document.getElementById(id);
+      return el ? el.value.trim() : '';
+    };
+    const c = {
+      nome: val(`${prefix}-nome`),
+      cpf: val(`${prefix}-cpf`),
+    };
+    if (!opts.compact) {
+      c.rg = val(`${prefix}-rg`);
+      c.nacionalidade = val(`${prefix}-nacionalidade`);
+      c.estadoCivil = document.getElementById(`${prefix}-estadocivil`) ? document.getElementById(`${prefix}-estadocivil`).value : '';
+      c.profissao = val(`${prefix}-profissao`);
+      c.endereco = val(`${prefix}-endereco`);
+      c.cidadeUf = val(`${prefix}-cidadeuf`);
+    }
+    return c;
   }
 
   function qualificacaoCliente(c) {
-    if (!c) return '[dados do cliente não preenchidos]';
+    if (!c || !c.nome) return '[dados do cliente não preenchidos]';
     const partes = [];
-    partes.push(`<strong>${c.nome || '[nome]'}</strong>`);
+    partes.push(`<strong>${c.nome}</strong>`);
     if (c.nacionalidade) partes.push(c.nacionalidade);
     if (c.estadoCivil) partes.push(c.estadoCivil);
     if (c.profissao) partes.push(c.profissao);
@@ -138,17 +175,6 @@ const Docs = (() => {
     window.print();
   }
 
-  // ---------------- Opções de cliente para <select> ----------------
-  function clienteOptionsHtml(selectedId) {
-    const clientes = DB.listClientes();
-    if (clientes.length === 0) {
-      return `<option value="">Nenhum cliente cadastrado — cadastre em "Clientes"</option>`;
-    }
-    return `<option value="">Selecione um cliente...</option>` + clientes.map(c =>
-      `<option value="${c.id}" ${c.id === selectedId ? 'selected' : ''}>${c.nome}</option>`
-    ).join('');
-  }
-
   function condicoesHonorarios(modalidade, valorFixo, percentual, pagamentoTexto) {
     const vf = formatBRL(valorFixo);
     const vfExt = valorExtenso(valorFixo);
@@ -166,8 +192,8 @@ const Docs = (() => {
     }
   }
 
-  function saveHistorico(tipo, titulo, clienteId, clienteNome, html) {
-    return DB.saveDocumento({ tipo, titulo, clienteId: clienteId || null, clienteNome: clienteNome || '', conteudoHtml: html });
+  function saveHistorico(tipo, titulo, clienteNome, html) {
+    return DB.saveDocumento({ tipo, titulo, clienteNome: clienteNome || '', conteudoHtml: html });
   }
 
   function toast(msg) {
@@ -207,7 +233,7 @@ const Docs = (() => {
       <div class="card">
         <h3>Dados do contrato</h3>
         <div class="grid cols-3">
-          <div class="field span-2"><label>Cliente</label><select id="ctr-cliente">${clienteOptionsHtml()}</select></div>
+          ${clienteFieldsHtml('ctr')}
           <div class="field"><label>Área</label>
             <select id="ctr-area"><option>Trabalhista</option><option>Previdenciário / INSS</option><option>Cível</option><option>Consumidor</option><option>Família</option><option>Empresarial</option><option>Criminal</option><option>Outro</option></select>
           </div>
@@ -236,7 +262,7 @@ const Docs = (() => {
     document.getElementById('ctr-data').value = new Date().toISOString().slice(0, 10);
 
     document.getElementById('ctr-gerar').onclick = () => {
-      const cliente = DB.getCliente(document.getElementById('ctr-cliente').value);
+      const cliente = readClienteFromInputs('ctr');
       const area = document.getElementById('ctr-area').value;
       const objeto = document.getElementById('ctr-objeto').value || '[objeto não informado]';
       const modalidade = document.getElementById('ctr-modalidade').value;
@@ -269,13 +295,10 @@ const Docs = (() => {
       window._ctrCliente = cliente;
     };
 
-    wireActionButtons('ctr', 'ctr-preview', () => {
-      const cliente = window._ctrCliente;
-      return `Contrato - ${cliente ? cliente.nome : 'cliente'}`;
-    });
+    wireActionButtons('ctr', 'ctr-preview', () => `Contrato - ${(window._ctrCliente && window._ctrCliente.nome) || 'cliente'}`);
     document.getElementById('ctr-salvar').onclick = () => {
-      const cliente = window._ctrCliente || DB.getCliente(document.getElementById('ctr-cliente').value);
-      saveHistorico('Contrato de Honorários', `Contrato - ${cliente ? cliente.nome : 'sem cliente'}`, cliente && cliente.id, cliente && cliente.nome, document.getElementById('ctr-preview').innerHTML);
+      const cliente = window._ctrCliente || readClienteFromInputs('ctr');
+      saveHistorico('Contrato de Honorários', `Contrato - ${cliente.nome || 'sem cliente'}`, cliente.nome, document.getElementById('ctr-preview').innerHTML);
       toast('Documento salvo no histórico.');
     };
   }
@@ -288,7 +311,7 @@ const Docs = (() => {
       <div class="card">
         <h3>Dados da procuração</h3>
         <div class="grid cols-3">
-          <div class="field span-2"><label>Cliente (outorgante)</label><select id="proc-cliente">${clienteOptionsHtml()}</select></div>
+          ${clienteFieldsHtml('proc')}
           <div class="field"><label>Finalidade</label>
             <select id="proc-finalidade">
               <option>ação trabalhista</option>
@@ -322,7 +345,7 @@ const Docs = (() => {
     document.getElementById('proc-data').value = new Date().toISOString().slice(0, 10);
 
     document.getElementById('proc-gerar').onclick = () => {
-      const cliente = DB.getCliente(document.getElementById('proc-cliente').value);
+      const cliente = readClienteFromInputs('proc');
       const finalidade = document.getElementById('proc-finalidade').value;
       const data = document.getElementById('proc-data').value;
       const poderes = [];
@@ -346,8 +369,8 @@ const Docs = (() => {
 
     wireActionButtons('proc', 'proc-preview', () => `Procuracao - ${(window._procCliente && window._procCliente.nome) || 'cliente'}`);
     document.getElementById('proc-salvar').onclick = () => {
-      const cliente = window._procCliente || DB.getCliente(document.getElementById('proc-cliente').value);
-      saveHistorico('Procuração', `Procuração - ${cliente ? cliente.nome : 'sem cliente'}`, cliente && cliente.id, cliente && cliente.nome, document.getElementById('proc-preview').innerHTML);
+      const cliente = window._procCliente || readClienteFromInputs('proc');
+      saveHistorico('Procuração', `Procuração - ${cliente.nome || 'sem cliente'}`, cliente.nome, document.getElementById('proc-preview').innerHTML);
       toast('Documento salvo no histórico.');
     };
   }
@@ -360,7 +383,7 @@ const Docs = (() => {
       <div class="card">
         <h3>Dados da declaração</h3>
         <div class="grid cols-3">
-          <div class="field span-2"><label>Cliente (declarante)</label><select id="hipo-cliente">${clienteOptionsHtml()}</select></div>
+          ${clienteFieldsHtml('hipo')}
           <div class="field"><label>Renda mensal aproximada (opcional)</label><input type="number" step="0.01" id="hipo-renda" placeholder="Deixe em branco para omitir"></div>
           <div class="field span-full"><label>Observação adicional (opcional)</label><textarea id="hipo-obs" placeholder="Ex: encontra-se desempregado(a) no momento."></textarea></div>
           <div class="field"><label>Data</label><input type="date" id="hipo-data"></div>
@@ -375,7 +398,7 @@ const Docs = (() => {
     document.getElementById('hipo-data').value = new Date().toISOString().slice(0, 10);
 
     document.getElementById('hipo-gerar').onclick = () => {
-      const cliente = DB.getCliente(document.getElementById('hipo-cliente').value);
+      const cliente = readClienteFromInputs('hipo');
       const renda = document.getElementById('hipo-renda').value;
       const obs = document.getElementById('hipo-obs').value;
       const data = document.getElementById('hipo-data').value;
@@ -396,8 +419,8 @@ const Docs = (() => {
 
     wireActionButtons('hipo', 'hipo-preview', () => `Declaracao Hipossuficiencia - ${(window._hipoCliente && window._hipoCliente.nome) || 'cliente'}`);
     document.getElementById('hipo-salvar').onclick = () => {
-      const cliente = window._hipoCliente || DB.getCliente(document.getElementById('hipo-cliente').value);
-      saveHistorico('Declaração de Hipossuficiência', `Hipossuficiência - ${cliente ? cliente.nome : 'sem cliente'}`, cliente && cliente.id, cliente && cliente.nome, document.getElementById('hipo-preview').innerHTML);
+      const cliente = window._hipoCliente || readClienteFromInputs('hipo');
+      saveHistorico('Declaração de Hipossuficiência', `Hipossuficiência - ${cliente.nome || 'sem cliente'}`, cliente.nome, document.getElementById('hipo-preview').innerHTML);
       toast('Documento salvo no histórico.');
     };
   }
@@ -410,10 +433,8 @@ const Docs = (() => {
       <div class="card">
         <h3>Dados do recibo</h3>
         <div class="grid cols-3">
-          <div class="field span-2"><label>Pagador (cliente, opcional)</label><select id="rec-cliente">${clienteOptionsHtml()}</select></div>
+          ${clienteFieldsHtml('rec', { compact: true })}
           <div class="field"><label>Valor (R$)</label><input type="number" step="0.01" id="rec-valor" value="0"></div>
-          <div class="field span-2"><label>Nome do pagador</label><input id="rec-nome" placeholder="Preenchido automaticamente ao escolher o cliente"></div>
-          <div class="field"><label>CPF/CNPJ do pagador</label><input id="rec-cpf"></div>
           <div class="field span-full"><label>Referente a</label><textarea id="rec-referente" placeholder="Ex: honorários advocatícios referentes ao processo nº 0001234-56.2025.5.18.0000."></textarea></div>
           <div class="field"><label>Forma de pagamento</label>
             <select id="rec-forma"><option>PIX</option><option>dinheiro</option><option>transferência bancária</option><option>cartão de crédito</option><option>cartão de débito</option><option>cheque</option></select>
@@ -428,19 +449,12 @@ const Docs = (() => {
       </div>
     `;
     document.getElementById('rec-data').value = new Date().toISOString().slice(0, 10);
-    document.getElementById('rec-cliente').onchange = (e) => {
-      const c = DB.getCliente(e.target.value);
-      if (c) {
-        document.getElementById('rec-nome').value = c.nome || '';
-        document.getElementById('rec-cpf').value = c.cpf || '';
-      }
-    };
 
     document.getElementById('rec-gerar').onclick = () => {
-      const cliente = DB.getCliente(document.getElementById('rec-cliente').value);
+      const cliente = readClienteFromInputs('rec', { compact: true });
       const valor = document.getElementById('rec-valor').value;
-      const nome = document.getElementById('rec-nome').value || (cliente && cliente.nome) || '[nome do pagador]';
-      const cpf = document.getElementById('rec-cpf').value;
+      const nome = cliente.nome || '[nome do pagador]';
+      const cpf = cliente.cpf;
       const referente = document.getElementById('rec-referente').value || '[descrição não informada]';
       const forma = document.getElementById('rec-forma').value;
       const data = document.getElementById('rec-data').value;
@@ -455,13 +469,13 @@ const Docs = (() => {
         ${assinaturaBloco(`${cfg.nomeAdvogado} — ${cfg.oab}${cfg.cnpj ? ' — CNPJ ' + cfg.cnpj : ''}`)}
       `;
       document.getElementById('rec-preview').innerHTML = html;
-      window._recPagador = nome;
+      window._recCliente = cliente;
     };
 
-    wireActionButtons('rec', 'rec-preview', () => `Recibo - ${window._recPagador || 'pagador'}`);
+    wireActionButtons('rec', 'rec-preview', () => `Recibo - ${(window._recCliente && window._recCliente.nome) || 'pagador'}`);
     document.getElementById('rec-salvar').onclick = () => {
-      const cliente = DB.getCliente(document.getElementById('rec-cliente').value);
-      saveHistorico('Recibo', `Recibo - ${window._recPagador || 'pagador'}`, cliente && cliente.id, cliente && cliente.nome, document.getElementById('rec-preview').innerHTML);
+      const cliente = window._recCliente || readClienteFromInputs('rec', { compact: true });
+      saveHistorico('Recibo', `Recibo - ${cliente.nome || 'pagador'}`, cliente.nome, document.getElementById('rec-preview').innerHTML);
       toast('Documento salvo no histórico.');
     };
   }
@@ -474,7 +488,7 @@ const Docs = (() => {
       <div class="card">
         <h3>Dados da proposta</h3>
         <div class="grid cols-3">
-          <div class="field span-2"><label>Cliente</label><select id="prop-cliente">${clienteOptionsHtml()}</select></div>
+          <div class="field span-2"><label>Nome do cliente</label><input id="prop-nome" placeholder="Nome completo"></div>
           <div class="field"><label>Área</label>
             <select id="prop-area"><option>Trabalhista</option><option>Previdenciário / INSS</option><option>Cível</option><option>Consumidor</option><option>Família</option><option>Empresarial</option><option>Criminal</option><option>Outro</option></select>
           </div>
@@ -503,7 +517,7 @@ const Docs = (() => {
     document.getElementById('prop-data').value = new Date().toISOString().slice(0, 10);
 
     document.getElementById('prop-gerar').onclick = () => {
-      const cliente = DB.getCliente(document.getElementById('prop-cliente').value);
+      const nomeCliente = document.getElementById('prop-nome').value || '[cliente]';
       const area = document.getElementById('prop-area').value;
       const resumo = document.getElementById('prop-resumo').value || '[resumo não informado]';
       const escopo = document.getElementById('prop-escopo').value;
@@ -516,7 +530,7 @@ const Docs = (() => {
 
       const html = `
         <h2>Proposta de Honorários Advocatícios</h2>
-        <p>Prezado(a) <strong>${(cliente && cliente.nome) || '[cliente]'}</strong>,</p>
+        <p>Prezado(a) <strong>${nomeCliente}</strong>,</p>
         <p>Agradecemos a confiança em nos procurar e apresentamos, a seguir, nossa proposta de honorários advocatícios referente ao caso analisado, na área ${area}.</p>
         <p class="clausula-titulo">1. Resumo do caso</p>
         <p>${resumo}</p>
@@ -531,13 +545,13 @@ const Docs = (() => {
         ${assinaturaBloco(`${cfg.nomeAdvogado} — ${cfg.oab}`)}
       `;
       document.getElementById('prop-preview').innerHTML = html;
-      window._propCliente = cliente;
+      window._propNome = nomeCliente;
     };
 
-    wireActionButtons('prop', 'prop-preview', () => `Proposta Honorarios - ${(window._propCliente && window._propCliente.nome) || 'cliente'}`);
+    wireActionButtons('prop', 'prop-preview', () => `Proposta Honorarios - ${window._propNome || 'cliente'}`);
     document.getElementById('prop-salvar').onclick = () => {
-      const cliente = window._propCliente || DB.getCliente(document.getElementById('prop-cliente').value);
-      saveHistorico('Proposta de Honorários', `Proposta - ${cliente ? cliente.nome : 'sem cliente'}`, cliente && cliente.id, cliente && cliente.nome, document.getElementById('prop-preview').innerHTML);
+      const nomeCliente = window._propNome || document.getElementById('prop-nome').value;
+      saveHistorico('Proposta de Honorários', `Proposta - ${nomeCliente || 'sem cliente'}`, nomeCliente, document.getElementById('prop-preview').innerHTML);
       toast('Documento salvo no histórico.');
     };
   }
@@ -592,9 +606,9 @@ const Docs = (() => {
   }
 
   return {
-    valorExtenso, formatBRL, hojeExtenso, dataExtensoFromInput,
+    valorExtenso, formatBRL, dataExtensoFromInput,
     qualificacaoCliente, qualificacaoAdvogada, assinaturaBloco,
-    downloadAsWord, printHtml, clienteOptionsHtml, toast,
+    downloadAsWord, printHtml, toast,
     renderContratosView, renderProcuracoesView, renderHipossuficienciaView,
     renderRecibosView, renderPropostasView, renderHistoricoView,
   };

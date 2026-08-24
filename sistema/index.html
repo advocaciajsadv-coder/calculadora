@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema Interno | JS Advocacia</title>
+<title>Gerador de Documentos | JS Advocacia</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
@@ -14,7 +14,7 @@
 <div id="lockScreen" style="display:none;">
   <div class="lock-box">
     <h1>JS Advocacia</h1>
-    <p>Sistema interno — digite o PIN de acesso deste computador</p>
+    <p>Gerador de documentos — digite o PIN de acesso deste computador</p>
     <input type="password" id="pinInput" inputmode="numeric" maxlength="8" placeholder="••••" autofocus>
     <div class="lock-error" id="pinError"></div>
     <button class="btn btn-primary" style="width:100%;justify-content:center" id="pinSubmit">Entrar</button>
@@ -24,13 +24,12 @@
 <div id="app" style="display:none;">
   <nav class="sidebar">
     <div class="brand">
-      <span class="badge">Sistema Interno</span>
+      <span class="badge">Gerador de Documentos</span>
       <h1>JS Advocacia</h1>
     </div>
 
     <div class="nav-group-label">Geral</div>
     <a class="nav-item" data-view="painel" href="#/painel"><span class="icon">&#9670;</span> Painel</a>
-    <a class="nav-item" data-view="clientes" href="#/clientes"><span class="icon">&#128100;</span> Clientes</a>
 
     <div class="nav-group-label">Documentos</div>
     <a class="nav-item" data-view="contratos" href="#/contratos"><span class="icon">&#128196;</span> Contratos</a>
@@ -40,15 +39,12 @@
     <a class="nav-item" data-view="propostas" href="#/propostas"><span class="icon">&#128203;</span> Propostas</a>
     <a class="nav-item" data-view="historico" href="#/historico"><span class="icon">&#128193;</span> Histórico</a>
 
-    <div class="nav-group-label">Audiências</div>
-    <a class="nav-item" data-view="audiencias" href="#/audiencias"><span class="icon">&#127908;</span> Gravar &amp; Transcrever</a>
-
     <div class="nav-group-label">Sistema</div>
     <a class="nav-item" data-view="configuracoes" href="#/configuracoes"><span class="icon">&#9881;</span> Configurações</a>
 
     <div class="sidebar-footer">
-      Dados salvos apenas neste navegador.<br>
-      Faça backup em Configurações.
+      Clientes, processos e audiências continuam no Tramitação Inteligente.<br>
+      Aqui é só o gerador de documentos, salvo neste navegador.
     </div>
   </nav>
 
@@ -58,57 +54,22 @@
     <section class="view" id="view-painel">
       <div class="view-header">
         <h2>Painel</h2>
-        <p>Visão geral do escritório neste computador.</p>
+        <p>Gerador de documentos do escritório — contrato, procuração, declaração de hipossuficiência, recibo e proposta de honorários.</p>
       </div>
-      <div class="grid cols-4" id="painelStats"></div>
+      <div class="grid cols-3" id="painelStats"></div>
       <div class="card">
         <h3>Atalhos rápidos</h3>
         <div class="btn-row">
-          <a class="btn btn-primary" href="#/clientes">+ Novo cliente</a>
-          <a class="btn" href="#/contratos">Gerar contrato</a>
+          <a class="btn btn-primary" href="#/contratos">Gerar contrato</a>
           <a class="btn" href="#/procuracoes">Gerar procuração</a>
-          <a class="btn" href="#/audiencias">Gravar audiência</a>
+          <a class="btn" href="#/hipossuficiencia">Gerar declaração</a>
+          <a class="btn" href="#/recibos">Gerar recibo</a>
+          <a class="btn" href="#/propostas">Gerar proposta</a>
         </div>
       </div>
-    </section>
-
-    <!-- CLIENTES -->
-    <section class="view" id="view-clientes">
-      <div class="view-header">
-        <h2>Clientes</h2>
-        <p>Cadastre uma vez e reutilize os dados em todos os documentos.</p>
-      </div>
       <div class="card">
-        <h3 id="clienteFormTitle">Novo cliente</h3>
-        <form id="clienteForm">
-          <input type="hidden" id="cli-id">
-          <div class="grid cols-3">
-            <div class="field span-2"><label>Nome completo</label><input id="cli-nome" required></div>
-            <div class="field"><label>CPF</label><input id="cli-cpf" placeholder="000.000.000-00"></div>
-            <div class="field"><label>RG</label><input id="cli-rg"></div>
-            <div class="field"><label>Nacionalidade</label><input id="cli-nacionalidade" value="brasileira"></div>
-            <div class="field"><label>Estado civil</label>
-              <select id="cli-estadocivil">
-                <option>solteiro(a)</option><option>casado(a)</option><option>divorciado(a)</option>
-                <option>viúvo(a)</option><option>união estável</option>
-              </select>
-            </div>
-            <div class="field"><label>Profissão</label><input id="cli-profissao"></div>
-            <div class="field span-2"><label>Endereço</label><input id="cli-endereco" placeholder="Rua, número, bairro"></div>
-            <div class="field"><label>Cidade/UF</label><input id="cli-cidadeuf" placeholder="Anápolis/GO"></div>
-            <div class="field"><label>Telefone</label><input id="cli-telefone"></div>
-            <div class="field"><label>E-mail</label><input id="cli-email" type="email"></div>
-            <div class="field span-full"><label>Observações</label><textarea id="cli-obs"></textarea></div>
-          </div>
-          <div class="btn-row">
-            <button type="submit" class="btn btn-primary">Salvar cliente</button>
-            <button type="button" class="btn" id="cli-cancel" style="display:none">Cancelar edição</button>
-          </div>
-        </form>
-      </div>
-      <div class="card">
-        <h3>Clientes cadastrados</h3>
-        <div id="clientesTableWrap"></div>
+        <h3>Como funciona</h3>
+        <p class="field-hint">Escolha o documento no menu ao lado, preencha os dados do cliente e do caso, clique em "Gerar / Atualizar documento" para ver a prévia, ajuste o texto se quiser, e baixe em Word (.doc) ou imprima/salve em PDF. Nada daqui sincroniza com o Tramitação Inteligente — os dados do cliente são digitados na hora, em cada documento.</p>
       </div>
     </section>
 
@@ -131,38 +92,9 @@
     <section class="view" id="view-historico">
       <div class="view-header">
         <h2>Histórico de documentos</h2>
-        <p>Todos os documentos gerados ficam salvos aqui.</p>
+        <p>Todos os documentos gerados ficam salvos aqui, neste navegador.</p>
       </div>
       <div class="card"><div id="historicoTableWrap"></div></div>
-    </section>
-
-    <!-- AUDIÊNCIAS -->
-    <section class="view" id="view-audiencias">
-      <div class="view-header">
-        <h2>Gravar &amp; Transcrever Audiências</h2>
-        <p>Grava o áudio e transcreve automaticamente em tempo real (Chrome/Edge, com internet e microfone).</p>
-      </div>
-      <div class="card">
-        <h3>Nova gravação</h3>
-        <div class="grid cols-3">
-          <div class="field span-2"><label>Título / Processo</label><input id="aud-titulo" placeholder="Ex: Audiência de instrução - Processo 0001234-56.2025..."></div>
-          <div class="field"><label>Cliente (opcional)</label><select id="aud-cliente"><option value="">—</option></select></div>
-        </div>
-        <div class="btn-row" style="align-items:center">
-          <button class="btn btn-primary" id="aud-start">&#9679; Iniciar gravação</button>
-          <button class="btn btn-danger" id="aud-stop" style="display:none">&#9632; Parar</button>
-          <span class="rec-indicator" id="aud-recIndicator" style="display:none"><span class="rec-dot"></span> Gravando... <span id="aud-timer">00:00</span></span>
-          <span id="aud-speechWarning" class="field-hint" style="display:none;color:var(--danger)">Transcrição ao vivo não é suportada neste navegador — o áudio ainda será gravado normalmente. Use Chrome ou Edge para transcrição.</span>
-        </div>
-        <div class="field" style="margin-top:16px">
-          <label>Transcrição ao vivo</label>
-          <div class="transcript-box" id="aud-liveTranscript">A transcrição aparece aqui durante a gravação...</div>
-        </div>
-      </div>
-      <div class="card">
-        <h3>Gravações salvas</h3>
-        <div id="audienciasListWrap"></div>
-      </div>
     </section>
 
     <!-- CONFIGURAÇÕES -->
@@ -201,7 +133,7 @@
       </div>
       <div class="card">
         <h3>Backup dos dados</h3>
-        <p class="field-hint" style="margin-bottom:12px">Os dados ficam só neste navegador. Exporte um backup regularmente — obrigatório antes de limpar o cache/histórico do navegador ou trocar de computador. (As gravações de áudio precisam ser baixadas individualmente em Audiências.)</p>
+        <p class="field-hint" style="margin-bottom:12px">Os dados ficam só neste navegador. Exporte um backup regularmente — obrigatório antes de limpar o cache/histórico do navegador ou trocar de computador.</p>
         <div class="btn-row">
           <button class="btn" id="btn-exportBackup">Exportar backup (.json)</button>
           <label class="btn" style="cursor:pointer">Importar backup<input type="file" id="btn-importBackup" accept=".json" style="display:none"></label>
@@ -217,7 +149,6 @@
 
 <script src="js/storage.js"></script>
 <script src="js/documentos.js"></script>
-<script src="js/audiencias.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

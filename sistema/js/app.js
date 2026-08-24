@@ -1,5 +1,5 @@
 /* ==========================================================================
-   app.js — Navegação (SPA), tela de acesso, painel, clientes e configurações
+   app.js — Navegação (SPA), tela de acesso, painel e configurações
    ========================================================================== */
 
 async function sha256Hex(text) {
@@ -36,7 +36,7 @@ async function initLock() {
 }
 
 // ---------------- Roteamento simples por hash ----------------
-const VIEWS = ['painel', 'clientes', 'contratos', 'procuracoes', 'hipossuficiencia', 'recibos', 'propostas', 'historico', 'audiencias', 'configuracoes'];
+const VIEWS = ['painel', 'contratos', 'procuracoes', 'hipossuficiencia', 'recibos', 'propostas', 'historico', 'configuracoes'];
 
 function navigateTo(view) {
   if (!VIEWS.includes(view)) view = 'painel';
@@ -47,14 +47,12 @@ function navigateTo(view) {
   if (navEl) navEl.classList.add('active');
 
   if (view === 'painel') renderPainel();
-  if (view === 'clientes') renderClientesView();
   if (view === 'contratos') Docs.renderContratosView();
   if (view === 'procuracoes') Docs.renderProcuracoesView();
   if (view === 'hipossuficiencia') Docs.renderHipossuficienciaView();
   if (view === 'recibos') Docs.renderRecibosView();
   if (view === 'propostas') Docs.renderPropostasView();
   if (view === 'historico') Docs.renderHistoricoView();
-  if (view === 'audiencias') Audiencias.init();
   if (view === 'configuracoes') renderConfigView();
 }
 
@@ -69,14 +67,13 @@ function initRouter() {
 
 // ---------------- Painel ----------------
 function renderPainel() {
-  const clientes = DB.listClientes();
   const docs = DB.listDocumentos();
-  const audiencias = DB.listAudiencias();
+  const porTipo = {};
+  docs.forEach((d) => { porTipo[d.tipo] = (porTipo[d.tipo] || 0) + 1; });
   const stats = [
-    { label: 'Clientes cadastrados', value: clientes.length },
     { label: 'Documentos gerados', value: docs.length },
-    { label: 'Audiências gravadas', value: audiencias.length },
     { label: 'Último documento', value: docs[0] ? new Date(docs[0].criadoEm).toLocaleDateString('pt-BR') : '—' },
+    { label: 'Tipos diferentes usados', value: Object.keys(porTipo).length },
   ];
   document.getElementById('painelStats').innerHTML = stats.map((s) => `
     <div class="card" style="text-align:center">
@@ -84,95 +81,6 @@ function renderPainel() {
       <div class="field-hint" style="margin-top:6px">${s.label}</div>
     </div>
   `).join('');
-}
-
-// ---------------- Clientes ----------------
-function renderClientesView() {
-  renderClientesTable();
-  document.getElementById('clienteForm').onsubmit = (e) => {
-    e.preventDefault();
-    const cliente = {
-      id: document.getElementById('cli-id').value || null,
-      nome: document.getElementById('cli-nome').value.trim(),
-      cpf: document.getElementById('cli-cpf').value.trim(),
-      rg: document.getElementById('cli-rg').value.trim(),
-      nacionalidade: document.getElementById('cli-nacionalidade').value.trim(),
-      estadoCivil: document.getElementById('cli-estadocivil').value,
-      profissao: document.getElementById('cli-profissao').value.trim(),
-      endereco: document.getElementById('cli-endereco').value.trim(),
-      cidadeUf: document.getElementById('cli-cidadeuf').value.trim(),
-      telefone: document.getElementById('cli-telefone').value.trim(),
-      email: document.getElementById('cli-email').value.trim(),
-      obs: document.getElementById('cli-obs').value.trim(),
-    };
-    if (!cliente.nome) return;
-    DB.saveCliente(cliente);
-    Docs.toast('Cliente salvo.');
-    resetClienteForm();
-    renderClientesTable();
-  };
-  document.getElementById('cli-cancel').onclick = resetClienteForm;
-}
-
-function resetClienteForm() {
-  document.getElementById('clienteForm').reset();
-  document.getElementById('cli-id').value = '';
-  document.getElementById('clienteFormTitle').textContent = 'Novo cliente';
-  document.getElementById('cli-cancel').style.display = 'none';
-  document.getElementById('cli-nacionalidade').value = 'brasileira';
-}
-
-function renderClientesTable() {
-  const wrap = document.getElementById('clientesTableWrap');
-  const clientes = DB.listClientes();
-  if (clientes.length === 0) {
-    wrap.innerHTML = `<div class="empty-state">Nenhum cliente cadastrado ainda.</div>`;
-    return;
-  }
-  wrap.innerHTML = `
-    <table>
-      <thead><tr><th>Nome</th><th>CPF</th><th>Telefone</th><th>Cidade/UF</th><th></th></tr></thead>
-      <tbody>
-        ${clientes.map((c) => `
-          <tr>
-            <td>${c.nome}</td>
-            <td>${c.cpf || '—'}</td>
-            <td>${c.telefone || '—'}</td>
-            <td>${c.cidadeUf || '—'}</td>
-            <td style="white-space:nowrap">
-              <button class="btn btn-sm" data-cli-edit="${c.id}">Editar</button>
-              <button class="btn btn-sm btn-danger" data-cli-del="${c.id}">Excluir</button>
-            </td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
-  wrap.querySelectorAll('[data-cli-edit]').forEach((btn) => btn.onclick = () => {
-    const c = DB.getCliente(btn.dataset.cliEdit);
-    document.getElementById('cli-id').value = c.id;
-    document.getElementById('cli-nome').value = c.nome || '';
-    document.getElementById('cli-cpf').value = c.cpf || '';
-    document.getElementById('cli-rg').value = c.rg || '';
-    document.getElementById('cli-nacionalidade').value = c.nacionalidade || 'brasileira';
-    document.getElementById('cli-estadocivil').value = c.estadoCivil || 'solteiro(a)';
-    document.getElementById('cli-profissao').value = c.profissao || '';
-    document.getElementById('cli-endereco').value = c.endereco || '';
-    document.getElementById('cli-cidadeuf').value = c.cidadeUf || '';
-    document.getElementById('cli-telefone').value = c.telefone || '';
-    document.getElementById('cli-email').value = c.email || '';
-    document.getElementById('cli-obs').value = c.obs || '';
-    document.getElementById('clienteFormTitle').textContent = `Editando: ${c.nome}`;
-    document.getElementById('cli-cancel').style.display = '';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-  wrap.querySelectorAll('[data-cli-del]').forEach((btn) => btn.onclick = () => {
-    if (confirm('Excluir este cliente? Documentos já gerados no histórico não serão apagados.')) {
-      DB.deleteCliente(btn.dataset.cliDel);
-      renderClientesTable();
-      Docs.toast('Cliente excluído.');
-    }
-  });
 }
 
 // ---------------- Configurações ----------------
