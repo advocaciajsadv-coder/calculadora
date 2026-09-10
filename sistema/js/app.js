@@ -36,7 +36,7 @@ async function initLock() {
 }
 
 // ---------------- Roteamento simples por hash ----------------
-const VIEWS = ['painel', 'contratos', 'procuracoes', 'hipossuficiencia', 'recibos', 'propostas', 'historico', 'configuracoes'];
+const VIEWS = ['painel', 'clientes', 'contratos', 'procuracoes', 'hipossuficiencia', 'recibos', 'propostas', 'historico', 'configuracoes'];
 
 function navigateTo(view) {
   if (!VIEWS.includes(view)) view = 'painel';
@@ -47,6 +47,7 @@ function navigateTo(view) {
   if (navEl) navEl.classList.add('active');
 
   if (view === 'painel') renderPainel();
+  if (view === 'clientes') renderClientesView();
   if (view === 'contratos') Docs.renderContratosView();
   if (view === 'procuracoes') Docs.renderProcuracoesView();
   if (view === 'hipossuficiencia') Docs.renderHipossuficienciaView();
@@ -83,11 +84,97 @@ function renderPainel() {
   `).join('');
 }
 
+// ---------------- Clientes ----------------
+function renderClientesView() {
+  renderClientesTable();
+  document.getElementById('clienteForm').onsubmit = (e) => {
+    e.preventDefault();
+    const cliente = {
+      id: document.getElementById('cli-id').value || null,
+      nome: document.getElementById('cli-nome').value.trim(),
+      genero: document.getElementById('cli-genero').value,
+      cpf: document.getElementById('cli-cpf').value.trim(),
+      rg: document.getElementById('cli-rg').value.trim(),
+      nascimento: document.getElementById('cli-nascimento').value,
+      endereco: document.getElementById('cli-endereco').value.trim(),
+      cep: document.getElementById('cli-cep').value.trim(),
+      telefone: document.getElementById('cli-telefone').value.trim(),
+      email: document.getElementById('cli-email').value.trim(),
+    };
+    if (!cliente.nome) return;
+    DB.saveCliente(cliente);
+    Docs.toast('Cliente salvo.');
+    resetClienteForm();
+    renderClientesTable();
+  };
+  document.getElementById('cli-cancel').onclick = resetClienteForm;
+}
+
+function resetClienteForm() {
+  document.getElementById('clienteForm').reset();
+  document.getElementById('cli-id').value = '';
+  document.getElementById('clienteFormTitle').textContent = 'Novo cliente';
+  document.getElementById('cli-cancel').style.display = 'none';
+}
+
+function renderClientesTable() {
+  const wrap = document.getElementById('clientesTableWrap');
+  const clientes = DB.listClientes();
+  if (clientes.length === 0) {
+    wrap.innerHTML = `<div class="empty-state">Nenhum cliente cadastrado ainda.</div>`;
+    return;
+  }
+  wrap.innerHTML = `
+    <table>
+      <thead><tr><th>Nome</th><th>CPF</th><th>Telefone</th><th></th></tr></thead>
+      <tbody>
+        ${clientes.map((c) => `
+          <tr>
+            <td>${c.nome}</td>
+            <td>${c.cpf || '—'}</td>
+            <td>${c.telefone || '—'}</td>
+            <td style="white-space:nowrap">
+              <button class="btn btn-sm" data-cli-edit="${c.id}">Editar</button>
+              <button class="btn btn-sm btn-danger" data-cli-del="${c.id}">Excluir</button>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+  wrap.querySelectorAll('[data-cli-edit]').forEach((btn) => btn.onclick = () => {
+    const c = DB.getCliente(btn.dataset.cliEdit);
+    document.getElementById('cli-id').value = c.id;
+    document.getElementById('cli-nome').value = c.nome || '';
+    document.getElementById('cli-genero').value = c.genero || 'M';
+    document.getElementById('cli-cpf').value = c.cpf || '';
+    document.getElementById('cli-rg').value = c.rg || '';
+    document.getElementById('cli-nascimento').value = c.nascimento || '';
+    document.getElementById('cli-endereco').value = c.endereco || '';
+    document.getElementById('cli-cep').value = c.cep || '';
+    document.getElementById('cli-telefone').value = c.telefone || '';
+    document.getElementById('cli-email').value = c.email || '';
+    document.getElementById('clienteFormTitle').textContent = `Editando: ${c.nome}`;
+    document.getElementById('cli-cancel').style.display = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  wrap.querySelectorAll('[data-cli-del]').forEach((btn) => btn.onclick = () => {
+    if (confirm('Excluir este cliente?')) {
+      DB.deleteCliente(btn.dataset.cliDel);
+      renderClientesTable();
+      Docs.toast('Cliente excluído.');
+    }
+  });
+}
+
 // ---------------- Configurações ----------------
 function renderConfigView() {
   const cfg = DB.getConfig();
+  document.getElementById('cfg-razaosocial').value = cfg.razaoSocial || '';
   document.getElementById('cfg-nome').value = cfg.nomeAdvogado || '';
+  document.getElementById('cfg-estadocivil').value = cfg.estadoCivilAdvogada || '';
   document.getElementById('cfg-oab').value = cfg.oab || '';
+  document.getElementById('cfg-oabnumero').value = cfg.oabNumero || '';
   document.getElementById('cfg-cnpj').value = cfg.cnpj || '';
   document.getElementById('cfg-endereco').value = cfg.endereco || '';
   document.getElementById('cfg-cidade').value = cfg.cidade || '';
@@ -99,8 +186,11 @@ function renderConfigView() {
     e.preventDefault();
     const novo = {
       ...cfg,
+      razaoSocial: document.getElementById('cfg-razaosocial').value.trim(),
       nomeAdvogado: document.getElementById('cfg-nome').value.trim(),
+      estadoCivilAdvogada: document.getElementById('cfg-estadocivil').value.trim(),
       oab: document.getElementById('cfg-oab').value.trim(),
+      oabNumero: document.getElementById('cfg-oabnumero').value.trim(),
       cnpj: document.getElementById('cfg-cnpj').value.trim(),
       endereco: document.getElementById('cfg-endereco').value.trim(),
       cidade: document.getElementById('cfg-cidade').value.trim(),

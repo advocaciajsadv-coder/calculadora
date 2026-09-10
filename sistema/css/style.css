@@ -353,10 +353,20 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
   border: 1px solid var(--border);
 }
 
+.doc-letterhead-top, .doc-letterhead-bottom {
+  display: block;
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto;
+  background: #fff;
+}
+.doc-letterhead-top { padding-top: 20px; }
+.doc-letterhead-bottom { padding-bottom: 12px; }
+
 .doc-preview {
   background: #fff;
   color: #1a1a1a;
-  padding: 48px 56px;
+  padding: 12px 56px 40px;
   min-height: 400px;
   font-family: 'Georgia', 'Times New Roman', serif;
   font-size: 14px;
