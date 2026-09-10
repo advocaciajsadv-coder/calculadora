@@ -202,12 +202,17 @@ const Docs = (() => {
   }
 
   // ---------------- Timbrado ----------------
+  // O Word não respeita bem "max-width" em CSS num .doc/HTML importado —
+  // sem width/height fixos no próprio <img>, ele pode exibir a imagem
+  // enorme e fora de proporção. Por isso aqui vão width/height em pixels,
+  // calculados a partir da proporção real dos arquivos em sistema/img/
+  // (1600x193 e 1600x199), além do style (que os navegadores respeitam).
   function letterheadTop() {
-    return `<img src="${LOGO_BASE}timbrado-topo.png" alt="" style="display:block;width:100%;max-width:680px;margin:0 auto 6px;">`;
+    return `<img src="${LOGO_BASE}timbrado-topo.png" alt="" width="650" height="78" style="display:block;width:650px;height:78px;max-width:100%;margin:0 auto 6px;">`;
   }
 
   function letterheadBottom() {
-    return `<img src="${LOGO_BASE}timbrado-rodape.png" alt="" style="display:block;width:100%;max-width:680px;margin:20px auto 0;">`;
+    return `<img src="${LOGO_BASE}timbrado-rodape.png" alt="" width="650" height="81" style="display:block;width:650px;height:81px;max-width:100%;margin:20px auto 0;">`;
   }
 
   function previewWrapHtml(previewId, opts) {
