@@ -30,6 +30,7 @@
 
     <div class="nav-group-label">Geral</div>
     <a class="nav-item" data-view="painel" href="#/painel"><span class="icon">&#9670;</span> Painel</a>
+    <a class="nav-item" data-view="clientes" href="#/clientes"><span class="icon">&#128100;</span> Clientes</a>
 
     <div class="nav-group-label">Documentos</div>
     <a class="nav-item" data-view="contratos" href="#/contratos"><span class="icon">&#128196;</span> Contratos</a>
@@ -43,8 +44,8 @@
     <a class="nav-item" data-view="configuracoes" href="#/configuracoes"><span class="icon">&#9881;</span> Configurações</a>
 
     <div class="sidebar-footer">
-      Clientes, processos e audiências continuam no Tramitação Inteligente.<br>
-      Aqui é só o gerador de documentos, salvo neste navegador.
+      Processos e audiências continuam no Tramitação Inteligente.<br>
+      Clientes salvos aqui ficam só neste navegador.
     </div>
   </nav>
 
@@ -69,7 +70,42 @@
       </div>
       <div class="card">
         <h3>Como funciona</h3>
-        <p class="field-hint">Escolha o documento no menu ao lado, preencha os dados do cliente e do caso, clique em "Gerar / Atualizar documento" para ver a prévia, ajuste o texto se quiser, e baixe em Word (.doc) ou imprima/salve em PDF. Nada daqui sincroniza com o Tramitação Inteligente — os dados do cliente são digitados na hora, em cada documento.</p>
+        <p class="field-hint">Escolha o documento no menu ao lado, preencha os dados do cliente e do caso (ou selecione um cliente já cadastrado), clique em "Gerar / Atualizar documento" para ver a prévia, ajuste o texto se quiser, e baixe em Word (.doc) ou imprima/salve em PDF. O cadastro de Clientes aqui é local a este navegador — não sincroniza com o Tramitação Inteligente.</p>
+      </div>
+    </section>
+
+    <!-- CLIENTES -->
+    <section class="view" id="view-clientes">
+      <div class="view-header">
+        <h2>Clientes</h2>
+        <p>Cadastro opcional, salvo só neste navegador — cadastre uma vez e reaproveite nos documentos.</p>
+      </div>
+      <div class="card">
+        <h3 id="clienteFormTitle">Novo cliente</h3>
+        <form id="clienteForm">
+          <input type="hidden" id="cli-id">
+          <div class="grid cols-3">
+            <div class="field span-2"><label>Nome completo</label><input id="cli-nome" required></div>
+            <div class="field"><label>Gênero</label>
+              <select id="cli-genero"><option value="M">Masculino</option><option value="F">Feminino</option></select>
+            </div>
+            <div class="field"><label>CPF</label><input id="cli-cpf" placeholder="000.000.000-00"></div>
+            <div class="field"><label>RG</label><input id="cli-rg" placeholder="0000000 SSP/UF"></div>
+            <div class="field"><label>Data de nascimento</label><input type="date" id="cli-nascimento"></div>
+            <div class="field span-2"><label>Endereço completo</label><input id="cli-endereco" placeholder="Rua, número, bairro, cidade, UF"></div>
+            <div class="field"><label>CEP</label><input id="cli-cep" placeholder="00000-000"></div>
+            <div class="field"><label>Telefone</label><input id="cli-telefone"></div>
+            <div class="field"><label>E-mail</label><input id="cli-email" type="email"></div>
+          </div>
+          <div class="btn-row">
+            <button type="submit" class="btn btn-primary">Salvar cliente</button>
+            <button type="button" class="btn" id="cli-cancel" style="display:none">Cancelar edição</button>
+          </div>
+        </form>
+      </div>
+      <div class="card">
+        <h3>Clientes cadastrados</h3>
+        <div id="clientesTableWrap"></div>
       </div>
     </section>
 
@@ -107,8 +143,11 @@
         <h3>Dados do escritório</h3>
         <form id="configForm">
           <div class="grid cols-2">
-            <div class="field span-2"><label>Nome da advogada</label><input id="cfg-nome"></div>
-            <div class="field"><label>OAB</label><input id="cfg-oab"></div>
+            <div class="field span-2"><label>Razão social (pessoa jurídica)</label><input id="cfg-razaosocial"></div>
+            <div class="field"><label>Nome da advogada</label><input id="cfg-nome"></div>
+            <div class="field"><label>Estado civil da advogada</label><input id="cfg-estadocivil" placeholder="Ex: casada, solteira"></div>
+            <div class="field"><label>OAB (exibição em recibo/proposta)</label><input id="cfg-oab"></div>
+            <div class="field"><label>Número da OAB/GO</label><input id="cfg-oabnumero" placeholder="Ex: 55.192"></div>
             <div class="field"><label>CNPJ</label><input id="cfg-cnpj"></div>
             <div class="field span-2"><label>Endereço do escritório</label><input id="cfg-endereco"></div>
             <div class="field"><label>Cidade</label><input id="cfg-cidade"></div>
