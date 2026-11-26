@@ -1,0 +1,583 @@
+<script>
+var MSG = (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+  var mensagensCliente_exports = {};
+  __export(mensagensCliente_exports, {
+    GRUPOS: () => GRUPOS,
+    MENSAGENS: () => MENSAGENS,
+    formatarDataMsg: () => formatarDataMsg,
+    formatarHoraMsg: () => formatarHoraMsg,
+    linkWhatsapp: () => linkWhatsapp
+  });
+  const GRUPOS = [
+    "Comercial",
+    "Contrata\xE7\xE3o",
+    "Documentos",
+    "Protocolo",
+    "INSS",
+    "Per\xEDcias",
+    "Audi\xEAncias",
+    "Processo e decis\xF5es",
+    "Acordos e valores",
+    "P\xF3s-atendimento"
+  ];
+  const S = (c) => c.tratamento === "voce" ? "voc\xEA" : c.sexo === "Feminino" ? "a senhora" : c.sexo === "Masculino" ? "o senhor" : "o(a) senhor(a)";
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  const ad = (c, base) => base + (c.sexo === "Feminino" ? "a" : c.sexo === "Masculino" ? "o" : "o(a)");
+  const v = (valor, vazio) => valor.trim() ? valor.trim() : vazio;
+  const lk = (c) => c.link.trim() ? ` ${c.link.trim()}` : "";
+  const AVISO_RESULTADO = "Mensagem sobre resultado: s\xF3 envie depois de conferir a decis\xE3o por inteiro. N\xE3o informe valores nem fale em resultado definitivo antes da an\xE1lise.";
+  const AVISO_VALORES = "Mensagem sobre valores: confira os n\xFAmeros e a decis\xE3o/alvar\xE1 antes de enviar.";
+  const MENSAGENS = [
+    // ---------- Comercial ----------
+    {
+      id: "primeiro-contato",
+      grupo: "Comercial",
+      fase: "Primeiro contato",
+      campos: [],
+      favorita: true,
+      texto: (c) => `Ol\xE1, ${c.nome}! Tudo bem? Sou da equipe da Dra. Jackeline Santos. Recebemos o seu contato e vamos entender melhor o seu caso para verificar como podemos ajudar. Vou fazer algumas perguntas r\xE1pidas, tudo bem?`
+    },
+    {
+      id: "agendamento",
+      grupo: "Comercial",
+      fase: "Agendamento de consulta",
+      campos: ["data", "hora", "link"],
+      texto: (c) => `Ol\xE1, ${c.nome}! O seu atendimento com a Dra. Jackeline ficou agendado para ${v(c.data, "[data]")}, \xE0s ${v(c.hora, "[hor\xE1rio]")}.${lk(c)}`
+    },
+    {
+      id: "atendimento",
+      grupo: "Comercial",
+      fase: "Lembrete de atendimento",
+      campos: ["hora", "link"],
+      texto: (c) => `Ol\xE1, ${c.nome}! Passando para lembrar do seu atendimento com a Dra. Jackeline hoje, \xE0s ${v(c.hora, "[hor\xE1rio]")}.${lk(c)} Se ocorrer algum imprevisto, avise-nos com anteced\xEAncia.`
+    },
+    {
+      id: "nao-compareceu",
+      grupo: "Comercial",
+      fase: "Cliente n\xE3o compareceu",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! O seu atendimento estava agendado para hoje, mas n\xE3o conseguimos falar com ${S(c)}. Caso ainda tenha interesse em analisar o seu caso, nos avise para verificarmos a possibilidade de um novo hor\xE1rio.`
+    },
+    {
+      id: "followup",
+      grupo: "Comercial",
+      fase: "Follow-up ap\xF3s consulta",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! Passando para saber se ${S(c)} deseja prosseguir com o seu caso, depois da conversa com a Dra. Jackeline. Se ficou alguma d\xFAvida, pode nos chamar.`
+    },
+    {
+      id: "proposta-honorarios",
+      grupo: "Comercial",
+      fase: "Proposta de honor\xE1rios",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! Conforme conversamos, estamos enviando as condi\xE7\xF5es para a atua\xE7\xE3o do escrit\xF3rio no seu caso. Leia com calma e, se tiver alguma d\xFAvida sobre os honor\xE1rios ou sobre o procedimento, nos chame.`
+    },
+    // ---------- Contratação ----------
+    {
+      id: "contrato",
+      grupo: "Contrata\xE7\xE3o",
+      fase: "Contrato e procura\xE7\xE3o para assinar",
+      campos: ["link"],
+      favorita: true,
+      texto: (c) => `Ol\xE1, ${c.nome}! Enviamos o contrato, a procura\xE7\xE3o e os demais documentos para a sua assinatura.${c.link.trim() ? ` Acesse pelo link: ${c.link.trim()}` : ""}
+Leia com calma e, se tiver qualquer d\xFAvida, fale conosco antes de assinar.`
+    },
+    {
+      id: "lembrete-assinatura",
+      grupo: "Contrata\xE7\xE3o",
+      fase: "Lembrete de assinatura",
+      campos: ["link"],
+      favorita: true,
+      texto: (c) => `Ol\xE1, ${c.nome}! Verificamos que os documentos enviados para assinatura ainda est\xE3o pendentes. Para conseguirmos iniciar o seu caso, precisamos concluir essa etapa. Segue novamente o link: ${v(c.link, "[link]")}`
+    },
+    {
+      id: "boas-vindas",
+      grupo: "Contrata\xE7\xE3o",
+      fase: "Boas-vindas (cliente fechou)",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! Seja ${ad(c, "bem-vind")} ao escrit\xF3rio Jackeline Santos Advocacia. A partir de agora, nossa equipe acompanhar\xE1 o seu caso e orientar\xE1 ${S(c)} em cada etapa. Sempre que houver uma novidade relevante ou precisarmos de alguma provid\xEAncia, entraremos em contato.`
+    },
+    {
+      id: "antifraude",
+      grupo: "Contrata\xE7\xE3o",
+      fase: "Orienta\xE7\xE3o antifraude",
+      campos: [],
+      texto: () => `\u26A0\uFE0F ATEN\xC7\xC3O: nosso escrit\xF3rio n\xE3o solicita pagamentos para libera\xE7\xE3o de valores, benef\xEDcios, precat\xF3rios ou acordos por n\xFAmeros desconhecidos. Em caso de mensagem suspeita, n\xE3o fa\xE7a nenhum pagamento. Entre em contato conosco pelo canal oficial antes de tomar qualquer provid\xEAncia.`
+    },
+    {
+      id: "boas-vindas-oficial",
+      grupo: "Contrata\xE7\xE3o",
+      fase: "Boas-vindas oficial do grupo (Mensagem 1 da Norma)",
+      campos: [],
+      favorita: true,
+      aviso: "Texto oficial da Norma de comunica\xE7\xE3o: envie exatamente assim, no grupo rec\xE9m-criado, sem alterar palavras.",
+      texto: () => `Seja bem-vindo(a) \xE0 JS Advocacia.
+
+Este grupo \xE9 o canal oficial de comunica\xE7\xE3o entre voc\xEA e o nosso escrit\xF3rio. Por aqui ser\xE3o enviadas todas as orienta\xE7\xF5es, solicita\xE7\xF5es de documentos, informa\xE7\xF5es e atualiza\xE7\xF5es relacionadas ao seu atendimento/processo.
+
+Para sua seguran\xE7a e melhor organiza\xE7\xE3o:
+
+- Todas as comunica\xE7\xF5es ocorrer\xE3o exclusivamente por este grupo;
+- Desconsidere contatos, solicita\xE7\xF5es ou orienta\xE7\xF5es recebidas por outros n\xFAmeros ou canais;
+- Nunca atenda liga\xE7\xF5es ou mensagens de pessoas que se passem por advogados ou funcion\xE1rios do escrit\xF3rio fora deste grupo. Golpistas costumam agir assim. Na d\xFAvida, confirme aqui antes de qualquer coisa;
+- Nosso \xFAnico n\xFAmero oficial \xE9 (62) 98556-6018;
+- Em caso de d\xFAvida, utilize sempre este grupo para falar conosco.
+
+JS Advocacia
+Dra. Jackeline Santos`
+    },
+    {
+      id: "inicio-formal",
+      grupo: "Contrata\xE7\xE3o",
+      fase: "In\xEDcio formal do atendimento (Mensagem 2 da Norma)",
+      campos: [],
+      aviso: "Texto oficial da Norma de comunica\xE7\xE3o: envie logo depois da Mensagem 1.",
+      texto: () => `Para darmos in\xEDcio ao seu atendimento, precisamos que voc\xEA nos encaminhe, por este grupo, os documentos e informa\xE7\xF5es solicitados. Assim que toda a documenta\xE7\xE3o estiver completa, faremos a an\xE1lise jur\xEDdica e daremos andamento \xE0s pr\xF3ximas etapas do seu caso. Qualquer d\xFAvida, permane\xE7a \xE0 vontade para nos chamar por aqui.`
+    },
+    // ---------- Documentos ----------
+    {
+      id: "documentos",
+      grupo: "Documentos",
+      fase: "Pedido de documentos",
+      campos: ["documentos", "link"],
+      favorita: true,
+      texto: (c) => `Ol\xE1, ${c.nome}! Para darmos andamento ao seu caso, precisamos dos seguintes documentos: ${v(c.documentos, "[documentos]")}.${c.link.trim() ? ` ${cap(S(c))} pode envi\xE1-los pelo link seguro: ${c.link.trim()} (fotos n\xEDtidas ou PDF).` : ""} Por favor, envie assim que poss\xEDvel para n\xE3o atrasarmos a an\xE1lise e o protocolo.`
+    },
+    {
+      id: "documento-pendente",
+      grupo: "Documentos",
+      fase: "Documento pendente",
+      campos: ["documentos", "link"],
+      texto: (c) => `Ol\xE1, ${c.nome}! Conferimos a sua documenta\xE7\xE3o e ainda est\xE1 pendente: ${v(c.documentos, "[documentos]")}. Precisamos desses documentos para prosseguir com o seu caso.${c.link.trim() ? ` Envie pelo link: ${c.link.trim()}` : ""} Por favor, envie assim que poss\xEDvel.`
+    },
+    {
+      id: "cobranca-documentos",
+      grupo: "Documentos",
+      fase: "Cobran\xE7a firme de documentos",
+      campos: ["prazo"],
+      texto: (c) => `Ol\xE1, ${c.nome}! Ainda n\xE3o recebemos os documentos solicitados. Sem essa documenta\xE7\xE3o, n\xE3o conseguimos avan\xE7ar com o seu caso. Precisamos do envio at\xE9 ${v(c.prazo, "[prazo]")}. Caso tenha alguma dificuldade para conseguir os documentos, nos avise.`
+    },
+    {
+      id: "docs-recebidos",
+      grupo: "Documentos",
+      fase: "Documentos recebidos",
+      campos: [],
+      favorita: true,
+      texto: (c) => `Ol\xE1, ${c.nome}! Recebemos os seus documentos. Agora vamos conferir e organizar a documenta\xE7\xE3o para dar continuidade ao seu caso. Se identificarmos alguma pend\xEAncia, entraremos em contato.`
+    },
+    {
+      id: "documentacao-completa",
+      grupo: "Documentos",
+      fase: "Documenta\xE7\xE3o completa",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! Conferimos a sua documenta\xE7\xE3o e, neste momento, est\xE1 tudo certo. O seu caso seguir\xE1 para a pr\xF3xima etapa. Avisaremos ${S(c)} quando houver nova atualiza\xE7\xE3o.`
+    },
+    // ---------- Protocolo ----------
+    {
+      id: "em-elaboracao",
+      grupo: "Protocolo",
+      fase: "Processo em elabora\xE7\xE3o",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! O seu caso j\xE1 est\xE1 em fase de elabora\xE7\xE3o pelo jur\xEDdico. Assim que concluirmos a an\xE1lise e realizarmos o protocolo, ${S(c)} ser\xE1 ${ad(c, "informad")}.`
+    },
+    {
+      id: "protocolado",
+      grupo: "Protocolo",
+      fase: "Processo protocolado",
+      campos: [],
+      favorita: true,
+      texto: (c) => `Ol\xE1, ${c.nome}! O seu processo foi protocolado com sucesso. A partir de agora, vamos acompanhar as movimenta\xE7\xF5es e avisaremos sempre que houver alguma novidade relevante ou provid\xEAncia necess\xE1ria.`
+    },
+    {
+      id: "pos-protocolo",
+      grupo: "Protocolo",
+      fase: "P\xF3s-protocolo: orienta\xE7\xF5es ao cliente",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! Agora que o protocolo foi feito, algumas orienta\xE7\xF5es para ${S(c)}: evite comentar o processo com o ex-empregador, com colegas ou nas redes sociais; n\xE3o apague conversas, mensagens ou comprovantes; guarde qualquer documento ou prova nova; e nos avise se a empresa entrar em contato. O processo n\xE3o \xE9 imediato, mas entraremos em contato sempre que houver movimenta\xE7\xE3o relevante. Lembrando: o escrit\xF3rio n\xE3o pede Pix, transfer\xEAncia ou adiantamento por mensagem, e nosso \xFAnico n\xFAmero oficial \xE9 (62) 98556-6018.`
+    },
+    // ---------- INSS ----------
+    {
+      id: "inss-protocolado",
+      grupo: "INSS",
+      fase: "Pedido administrativo protocolado",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! O seu requerimento foi protocolado junto ao INSS. Agora precisamos aguardar a an\xE1lise do \xF3rg\xE3o. O escrit\xF3rio continuar\xE1 acompanhando o andamento e avisar\xE1 ${S(c)} quando houver alguma atualiza\xE7\xE3o importante.`
+    },
+    {
+      id: "inss-exigencia",
+      grupo: "INSS",
+      fase: "Exig\xEAncia do INSS",
+      campos: ["documentos", "prazo"],
+      texto: (c) => `Ol\xE1, ${c.nome}! O INSS solicitou documentos ou informa\xE7\xF5es adicionais no seu requerimento. Precisamos de ${v(c.documentos, "[documentos]")} at\xE9 ${v(c.prazo, "[prazo]")} para cumprirmos a exig\xEAncia dentro do prazo. Por favor, envie o quanto antes.`
+    },
+    {
+      id: "inss-respondeu",
+      grupo: "INSS",
+      fase: "O INSS respondeu",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! Tivemos uma atualiza\xE7\xE3o no seu pedido junto ao INSS. Nossa equipe far\xE1 a an\xE1lise da resposta antes de orientar ${S(c)} sobre o resultado e os pr\xF3ximos passos. Assim que concluirmos essa confer\xEAncia, entraremos em contato.`
+    },
+    {
+      id: "beneficio-concedido",
+      grupo: "INSS",
+      fase: "Benef\xEDcio concedido",
+      campos: [],
+      aviso: AVISO_RESULTADO,
+      texto: (c) => `Ol\xE1, ${c.nome}! Temos uma boa atualiza\xE7\xE3o: ap\xF3s conferirmos a decis\xE3o, o seu benef\xEDcio foi concedido. Agora vamos analisar os dados da concess\xE3o, datas, valores e eventuais atrasados para confirmar se est\xE1 tudo correto. Em seguida, passaremos todas as orienta\xE7\xF5es.`
+    },
+    {
+      id: "beneficio-indeferido",
+      grupo: "INSS",
+      fase: "Benef\xEDcio indeferido",
+      campos: [],
+      aviso: AVISO_RESULTADO,
+      texto: (c) => `Ol\xE1, ${c.nome}! O INSS indeferiu o pedido administrativo. Isso n\xE3o significa necessariamente o fim do caso. Vamos analisar o motivo do indeferimento e verificar tecnicamente a medida adequada, inclusive eventual recurso ou a\xE7\xE3o judicial.`
+    },
+    // ---------- Perícias ----------
+    {
+      id: "pericia-medica",
+      grupo: "Per\xEDcias",
+      fase: "Per\xEDcia m\xE9dica marcada",
+      campos: ["data", "hora", "local"],
+      favorita: true,
+      texto: (c) => `Ol\xE1, ${c.nome}! A sua per\xEDcia m\xE9dica foi marcada para ${v(c.data, "[data]")}, \xE0s ${v(c.hora, "[hor\xE1rio]")}, em ${v(c.local, "[local]")}. Essa etapa \xE9 muito importante. Reserve a data e organize-se para comparecer com anteced\xEAncia. Mais pr\xF3ximo da per\xEDcia enviaremos as orienta\xE7\xF5es.`
+    },
+    {
+      id: "pericia-7-dias",
+      grupo: "Per\xEDcias",
+      fase: "Per\xEDcia m\xE9dica \u2013 7 dias",
+      campos: ["data"],
+      texto: (c) => `Ol\xE1, ${c.nome}! A sua per\xEDcia m\xE9dica ser\xE1 no dia ${v(c.data, "[data]")}. J\xE1 comece a separar laudos, relat\xF3rios m\xE9dicos, exames, receitas e demais documentos relacionados ao seu problema de sa\xFAde, principalmente os mais recentes.`
+    },
+    {
+      id: "pericia-amanha",
+      grupo: "Per\xEDcias",
+      fase: "Per\xEDcia m\xE9dica \u2013 amanh\xE3",
+      campos: ["data", "hora", "local"],
+      texto: (c) => `Ol\xE1, ${c.nome}! Lembrando que a sua per\xEDcia \xE9 amanh\xE3, ${v(c.data, "[data]")}, \xE0s ${v(c.hora, "[hor\xE1rio]")}, em ${v(c.local, "[local]")}. Chegue com anteced\xEAncia e leve documento pessoal e toda a documenta\xE7\xE3o m\xE9dica organizada.`
+    },
+    {
+      id: "pericia-social",
+      grupo: "Per\xEDcias",
+      fase: "Per\xEDcia social marcada",
+      campos: ["data", "hora", "local"],
+      texto: (c) => `Ol\xE1, ${c.nome}! A sua avalia\xE7\xE3o social foi marcada para ${v(c.data, "[data]")}, \xE0s ${v(c.hora, "[hor\xE1rio]")}, em ${v(c.local, "[local]")}. Antes da avalia\xE7\xE3o, enviaremos orienta\xE7\xF5es espec\xEDficas sobre essa etapa.`
+    },
+    {
+      id: "pericia-judicial",
+      grupo: "Per\xEDcias",
+      fase: "Per\xEDcia judicial marcada",
+      campos: ["data", "hora", "local"],
+      texto: (c) => `Ol\xE1, ${c.nome}! Foi marcada a per\xEDcia judicial do seu processo para ${v(c.data, "[data]")}, \xE0s ${v(c.hora, "[hor\xE1rio]")}, em ${v(c.local, "[local]")}. Essa \xE9 uma etapa importante do processo. Vamos orientar ${S(c)} previamente sobre documentos e comparecimento.`
+    },
+    {
+      id: "pericia-realizada",
+      grupo: "Per\xEDcias",
+      fase: "Per\xEDcia realizada",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! Registramos que a sua per\xEDcia foi realizada. Agora precisamos aguardar a juntada do resultado/laudo e a continuidade do procedimento. Assim que houver uma atualiza\xE7\xE3o relevante, avisaremos ${S(c)}.`
+    },
+    {
+      id: "laudo-favoravel",
+      grupo: "Per\xEDcias",
+      fase: "Laudo pericial favor\xE1vel",
+      campos: [],
+      aviso: AVISO_RESULTADO,
+      texto: (c) => `Ol\xE1, ${c.nome}! O laudo da per\xEDcia foi disponibilizado e apresenta pontos favor\xE1veis ao seu caso. Ainda precisamos analisar tecnicamente o documento e acompanhar as pr\xF3ximas etapas antes de falar em resultado definitivo.`
+    },
+    {
+      id: "laudo-desfavoravel",
+      grupo: "Per\xEDcias",
+      fase: "Laudo pericial desfavor\xE1vel",
+      campos: [],
+      aviso: AVISO_RESULTADO,
+      texto: (c) => `Ol\xE1, ${c.nome}! O laudo da per\xEDcia foi disponibilizado. Identificamos pontos que precisam ser analisados e, se juridicamente cab\xEDvel, contestados. A equipe far\xE1 essa an\xE1lise antes de orientar ${S(c)} sobre os pr\xF3ximos passos.`
+    },
+    // ---------- Audiências ----------
+    {
+      id: "audiencia",
+      grupo: "Audi\xEAncias",
+      fase: "Audi\xEAncia marcada",
+      campos: ["data", "hora", "modalidade", "local"],
+      favorita: true,
+      texto: (c) => `Ol\xE1, ${c.nome}! A audi\xEAncia do seu processo foi marcada para ${v(c.data, "[data]")}, \xE0s ${v(c.hora, "[hor\xE1rio]")}, na modalidade ${v(c.modalidade, "[presencial/online]")}.${c.local.trim() ? ` Local ou link: ${c.local.trim()}.` : ""} Reserve esse hor\xE1rio. Antes da audi\xEAncia, entraremos em contato para fazer a sua prepara\xE7\xE3o.`
+    },
+    {
+      id: "audiencia-preparacao",
+      grupo: "Audi\xEAncias",
+      fase: "Prepara\xE7\xE3o para audi\xEAncia",
+      campos: ["data", "hora"],
+      texto: (c) => `Ol\xE1, ${c.nome}! A sua audi\xEAncia est\xE1 pr\xF3xima e precisamos fazer a sua prepara\xE7\xE3o. O objetivo \xE9 revisar os principais fatos do processo, esclarecer como funciona a audi\xEAncia e tirar as suas d\xFAvidas. Podemos conversar em ${v(c.data, "[data]")}, \xE0s ${v(c.hora, "[hor\xE1rio]")}?`
+    },
+    {
+      id: "audiencia-amanha",
+      grupo: "Audi\xEAncias",
+      fase: "Audi\xEAncia \u2013 amanh\xE3",
+      campos: ["data", "hora", "modalidade"],
+      texto: (c) => `Ol\xE1, ${c.nome}! Lembrando que a sua audi\xEAncia ser\xE1 amanh\xE3, ${v(c.data, "[data]")}, \xE0s ${v(c.hora, "[hor\xE1rio]")}, na modalidade ${v(c.modalidade, "[presencial/online]")}. Esteja dispon\xEDvel com anteced\xEAncia. Em caso de audi\xEAncia online, permane\xE7a em local silencioso, com boa internet e documento pessoal em m\xE3os.`
+    },
+    {
+      id: "testemunha",
+      grupo: "Audi\xEAncias",
+      fase: "Testemunha \u2013 confirma\xE7\xE3o",
+      campos: ["data", "hora"],
+      texto: (c) => `Ol\xE1! Tudo bem? Voc\xEA foi indicado(a) como testemunha no processo de ${c.nome}. A audi\xEAncia ser\xE1 em ${v(c.data, "[data]")}, \xE0s ${v(c.hora, "[hor\xE1rio]")}. Precisamos confirmar a sua disponibilidade para comparecer. Poderia nos confirmar, por favor?`
+    },
+    {
+      id: "audiencia-realizada",
+      grupo: "Audi\xEAncias",
+      fase: "Audi\xEAncia realizada",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! A sua audi\xEAncia foi realizada. Agora o processo seguir\xE1 para as pr\xF3ximas etapas. Assim que houver decis\xE3o ou alguma provid\xEAncia necess\xE1ria, entraremos em contato.`
+    },
+    // ---------- Processo e decisões ----------
+    {
+      id: "decisao",
+      grupo: "Processo e decis\xF5es",
+      fase: "Saiu decis\xE3o no processo",
+      campos: [],
+      favorita: true,
+      texto: (c) => `Ol\xE1, ${c.nome}! Saiu uma nova decis\xE3o no seu processo. Nossa equipe far\xE1 a an\xE1lise do conte\xFAdo, dos efeitos da decis\xE3o e de eventual prazo ou provid\xEAncia necess\xE1ria. Assim que concluirmos, retornaremos com a orienta\xE7\xE3o.`
+    },
+    {
+      id: "sentenca-favoravel",
+      grupo: "Processo e decis\xF5es",
+      fase: "Senten\xE7a favor\xE1vel",
+      campos: [],
+      aviso: AVISO_RESULTADO,
+      texto: (c) => `Ol\xE1, ${c.nome}! Foi proferida senten\xE7a com pontos favor\xE1veis ao seu caso. Ainda precisamos analisar integralmente a decis\xE3o, os valores reconhecidos e a possibilidade de recurso das partes. Por isso, ainda n\xE3o significa necessariamente encerramento definitivo.`
+    },
+    {
+      id: "sentenca-parcial",
+      grupo: "Processo e decis\xF5es",
+      fase: "Senten\xE7a parcialmente favor\xE1vel",
+      campos: [],
+      aviso: AVISO_RESULTADO,
+      texto: (c) => `Ol\xE1, ${c.nome}! Saiu a senten\xE7a do seu processo e alguns pedidos foram acolhidos, enquanto outros n\xE3o. Vamos analisar cada ponto e verificar se h\xE1 necessidade e viabilidade de recurso antes de passar a orienta\xE7\xE3o final.`
+    },
+    {
+      id: "sentenca-desfavoravel",
+      grupo: "Processo e decis\xF5es",
+      fase: "Senten\xE7a desfavor\xE1vel",
+      campos: [],
+      aviso: AVISO_RESULTADO,
+      texto: (c) => `Ol\xE1, ${c.nome}! A senten\xE7a do processo n\xE3o acolheu os pedidos como pretend\xEDamos. Vamos analisar os fundamentos da decis\xE3o e verificar tecnicamente se existe medida ou recurso cab\xEDvel. Entraremos em contato ap\xF3s essa an\xE1lise.`
+    },
+    {
+      id: "recurso-apresentado",
+      grupo: "Processo e decis\xF5es",
+      fase: "Recurso apresentado",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! O recurso do seu processo foi apresentado dentro do prazo. Agora precisamos aguardar a tramita\xE7\xE3o e o posterior julgamento. Continuaremos acompanhando e avisaremos quando houver nova movimenta\xE7\xE3o relevante.`
+    },
+    {
+      id: "parte-recorreu",
+      grupo: "Processo e decis\xF5es",
+      fase: "Parte contr\xE1ria recorreu",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! A outra parte apresentou recurso no processo. Isso faz parte do procedimento e n\xE3o significa altera\xE7\xE3o autom\xE1tica do resultado. Vamos analisar o recurso e apresentar a manifesta\xE7\xE3o cab\xEDvel dentro do prazo.`
+    },
+    {
+      id: "fase-calculo",
+      grupo: "Processo e decis\xF5es",
+      fase: "Processo em fase de c\xE1lculo",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! O seu processo entrou na fase de c\xE1lculos. Nessa etapa ser\xE3o apurados os valores devidos conforme o que foi reconhecido no processo. Vamos acompanhar e conferir os c\xE1lculos antes de informar qualquer valor definitivo.`
+    },
+    {
+      id: "execucao",
+      grupo: "Processo e decis\xF5es",
+      fase: "Processo em execu\xE7\xE3o",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! O seu processo est\xE1 na fase de execu\xE7\xE3o, em que s\xE3o adotadas medidas para buscar o cumprimento da decis\xE3o e o pagamento dos valores devidos. Essa fase pode envolver pesquisas patrimoniais e outras provid\xEAncias judiciais.`
+    },
+    {
+      id: "sem-novidade",
+      grupo: "Processo e decis\xF5es",
+      fase: "Andamento sem novidade",
+      campos: [],
+      favorita: true,
+      texto: (c) => `Ol\xE1, ${c.nome}! Passando para atualizar ${S(c)} sobre o seu processo. Fizemos a confer\xEAncia e, neste momento, n\xE3o houve nenhuma movimenta\xE7\xE3o relevante. O processo continua sendo acompanhado normalmente pelo escrit\xF3rio e avisaremos assim que houver novidade.`
+    },
+    {
+      id: "aguardando-juiz",
+      grupo: "Processo e decis\xF5es",
+      fase: "Processo aguardando juiz",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! O seu processo est\xE1 aguardando an\xE1lise/decis\xE3o judicial. Neste momento, n\xE3o h\xE1 nenhuma provid\xEAncia pendente da sua parte. Continuamos acompanhando e avisaremos quando houver nova movimenta\xE7\xE3o.`
+    },
+    {
+      id: "aguardando-laudo",
+      grupo: "Processo e decis\xF5es",
+      fase: "Processo aguardando per\xEDcia/laudo",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! O seu processo est\xE1 aguardando a apresenta\xE7\xE3o/an\xE1lise do laudo pericial. Neste momento, n\xE3o precisamos de nenhuma provid\xEAncia sua. Seguimos acompanhando.`
+    },
+    {
+      id: "pedindo-atualizacao",
+      grupo: "Processo e decis\xF5es",
+      fase: "Cliente pedindo atualiza\xE7\xE3o repetidamente",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! Conferimos o seu processo novamente e n\xE3o houve nova movimenta\xE7\xE3o desde a nossa \xFAltima atualiza\xE7\xE3o. Pode ficar ${ad(c, "tranquil")}: acompanhamos os processos regularmente e entraremos em contato quando houver uma novidade relevante ou necessidade de alguma provid\xEAncia sua.`
+    },
+    // ---------- Acordos e valores ----------
+    {
+      id: "proposta-acordo",
+      grupo: "Acordos e valores",
+      fase: "Proposta de acordo recebida",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! Recebemos uma proposta de acordo no seu processo. Antes de aceitar ou recusar, vamos analisar os valores e as condi\xE7\xF5es para orientar ${S(c)} sobre vantagens, riscos e consequ\xEAncias da proposta.`
+    },
+    {
+      id: "acordo-fechado",
+      grupo: "Acordos e valores",
+      fase: "Acordo fechado",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! O acordo foi ajustado nas condi\xE7\xF5es que conversamos. Agora vamos acompanhar a formaliza\xE7\xE3o/homologa\xE7\xE3o e os respectivos pagamentos. Avisaremos ${S(c)} sobre cada etapa relevante.`
+    },
+    {
+      id: "acordo-homologado",
+      grupo: "Acordos e valores",
+      fase: "Acordo homologado",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! O acordo foi homologado. Agora vamos acompanhar o cumprimento das condi\xE7\xF5es e dos pagamentos previstos. Havendo qualquer atraso ou irregularidade, adotaremos as provid\xEAncias cab\xEDveis.`
+    },
+    {
+      id: "parcela-recebida",
+      grupo: "Acordos e valores",
+      fase: "Parcela de acordo recebida",
+      campos: [],
+      aviso: AVISO_VALORES,
+      texto: (c) => `Ol\xE1, ${c.nome}! Identificamos o pagamento da parcela referente ao acordo. Vamos realizar a confer\xEAncia e os procedimentos internos necess\xE1rios para o respectivo repasse/presta\xE7\xE3o de contas.`
+    },
+    {
+      id: "parcela-atrasada",
+      grupo: "Acordos e valores",
+      fase: "Parcela de acordo atrasada",
+      campos: ["data"],
+      texto: (c) => `Ol\xE1, ${c.nome}! A parcela prevista para ${v(c.data, "[data]")} ainda n\xE3o foi identificada. Estamos verificando o descumprimento e as provid\xEAncias cab\xEDveis no processo. Manteremos ${S(c)} ${ad(c, "informad")}.`
+    },
+    {
+      id: "valor-depositado",
+      grupo: "Acordos e valores",
+      fase: "Valor depositado judicialmente",
+      campos: [],
+      aviso: AVISO_VALORES,
+      texto: (c) => `Ol\xE1, ${c.nome}! Foi identificado um dep\xF3sito relacionado ao seu processo. Antes de informarmos a disponibilidade para recebimento, precisamos conferir a natureza do dep\xF3sito e aguardar eventual libera\xE7\xE3o judicial.`
+    },
+    {
+      id: "valor-liberado",
+      grupo: "Acordos e valores",
+      fase: "Valor liberado para saque",
+      campos: [],
+      aviso: AVISO_VALORES,
+      texto: (c) => `Ol\xE1, ${c.nome}! Confirmamos a libera\xE7\xE3o de valores no seu processo. Vamos orientar ${S(c)} sobre o procedimento para recebimento e realizar a presta\xE7\xE3o de contas dos honor\xE1rios e valores devidos.`
+    },
+    {
+      id: "prestacao-contas",
+      grupo: "Acordos e valores",
+      fase: "Presta\xE7\xE3o de contas",
+      campos: ["valores"],
+      aviso: AVISO_VALORES,
+      texto: (c) => `Ol\xE1, ${c.nome}! Estamos enviando a presta\xE7\xE3o de contas referente aos valores recebidos no seu processo.
+Valor recebido: ${v(c.valorRecebido, "[valor]")}
+Honor\xE1rios/despesas: ${v(c.valorHonorarios, "[valor]")}
+Valor l\xEDquido do cliente: ${v(c.valorLiquido, "[valor]")}
+Caso tenha alguma d\xFAvida, estamos \xE0 disposi\xE7\xE3o para explicar os lan\xE7amentos.`
+    },
+    // ---------- Pós-atendimento ----------
+    {
+      id: "sem-retorno",
+      grupo: "P\xF3s-atendimento",
+      fase: "Cliente sem retorno",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! Estamos aguardando o seu retorno para conseguirmos dar continuidade ao seu caso. Sem as informa\xE7\xF5es/documentos solicitados, n\xE3o conseguimos avan\xE7ar. Por favor, responda assim que poss\xEDvel.`
+    },
+    {
+      id: "ultima-tentativa",
+      grupo: "P\xF3s-atendimento",
+      fase: "\xDAltima tentativa de contato",
+      campos: ["prazo"],
+      texto: (c) => `Ol\xE1, ${c.nome}! Esta \xE9 a nossa nova tentativa de contato sobre uma pend\xEAncia necess\xE1ria para prosseguirmos com o seu caso. Precisamos do seu retorno at\xE9 ${v(c.prazo, "[prazo]")}. Caso n\xE3o seja poss\xEDvel responder agora, apenas nos informe quando conseguir\xE1 regularizar a pend\xEAncia.`
+    },
+    {
+      id: "atualizacao-cadastral",
+      grupo: "P\xF3s-atendimento",
+      fase: "Atualiza\xE7\xE3o cadastral",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! Precisamos confirmar se os seus dados continuam atualizados. O seu telefone continua o mesmo desde o in\xEDcio do atendimento?`
+    },
+    {
+      id: "dados-bancarios",
+      grupo: "P\xF3s-atendimento",
+      fase: "Solicita\xE7\xE3o de dados banc\xE1rios",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! Para realizarmos o procedimento de repasse, precisamos confirmar os seus dados banc\xE1rios. Por seguran\xE7a, envie os dados somente por este canal oficial do escrit\xF3rio.`
+    },
+    {
+      id: "caso-encerrado",
+      grupo: "P\xF3s-atendimento",
+      fase: "Caso encerrado",
+      campos: [],
+      texto: (c) => `Ol\xE1, ${c.nome}! O seu caso chegou \xE0 etapa final e conclu\xEDmos as provid\xEAncias sob responsabilidade do escrit\xF3rio. Agradecemos pela confian\xE7a depositada em nosso trabalho durante esse per\xEDodo. Permanecemos \xE0 disposi\xE7\xE3o caso precise de orienta\xE7\xE3o jur\xEDdica futuramente.`
+    },
+    {
+      id: "pesquisa-satisfacao",
+      grupo: "P\xF3s-atendimento",
+      fase: "Pesquisa de satisfa\xE7\xE3o",
+      campos: ["link"],
+      texto: (c) => `Ol\xE1, ${c.nome}! Agora que conclu\xEDmos esta etapa, gostar\xEDamos de saber como foi a sua experi\xEAncia com o nosso atendimento. O seu retorno \xE9 importante para aprimorarmos continuamente o trabalho do escrit\xF3rio. ${v(c.link, "[link]")}`
+    },
+    {
+      id: "avaliacao-google",
+      grupo: "P\xF3s-atendimento",
+      fase: "Pedido de avalia\xE7\xE3o Google",
+      campos: [],
+      aviso: "Publicidade na advocacia: n\xE3o ofere\xE7a vantagem nem prometa nada em troca da avalia\xE7\xE3o, n\xE3o responda publicamente nada que confirme que a pessoa \xE9 cliente e n\xE3o republique depoimentos nas redes sem decidir antes (Provimento 205/2021 da OAB, a confirmar).",
+      texto: () => `Muito obrigada pelo retorno e pela confian\xE7a! Foi um prazer atender voc\xEA. \u{1F60A}
+
+Se puder, deixe uma avalia\xE7\xE3o sobre o nosso atendimento no Google. Sua opini\xE3o \xE9 muito importante e ajuda outras pessoas a conhecerem nosso trabalho:
+https://g.page/r/CdpjCeqP2UAdEBM/review
+
+Tamb\xE9m convido voc\xEA a seguir nosso Instagram, onde compartilhamos orienta\xE7\xF5es sobre direitos trabalhistas e previdenci\xE1rios: https://www.instagram.com/advogada.jackelinesantos/
+
+Conte conosco! \u{1F90E}`
+    }
+  ];
+  function formatarDataMsg(iso) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return "";
+    const d = /* @__PURE__ */ new Date(`${iso}T12:00:00`);
+    const sem = d.toLocaleDateString("pt-BR", { weekday: "long" });
+    return `${sem}, ${d.toLocaleDateString("pt-BR")}`;
+  }
+  function formatarHoraMsg(hhmm) {
+    const m = /^(\d{2}):(\d{2})$/.exec(hhmm);
+    if (!m) return "";
+    return m[2] === "00" ? `${Number(m[1])}h` : `${Number(m[1])}h${m[2]}`;
+  }
+  function linkWhatsapp(telefone, texto) {
+    const d = (telefone ?? "").replace(/\D/g, "");
+    const num = d.length >= 12 ? d : d.length >= 10 ? `55${d}` : "";
+    return `https://wa.me/${num}?text=${encodeURIComponent(texto)}`;
+  }
+  return __toCommonJS(mensagensCliente_exports);
+})();
+
+</script>
