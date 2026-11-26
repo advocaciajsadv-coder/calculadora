@@ -1,0 +1,17 @@
+Protótipo atual do Escritório Online (versão 18).
+index.html: página final publicada (arquivo único, abre no navegador, mas depende do Claude para banco e Tramitação).
+app.js: toda a lógica e as telas. style.css e dark.css: visual (tema claro e escuro).
+ficha.json: perguntas das fichas por área. kits.json: modelos .docx dos kits (base64, pool compartilhado).
+msg_block.html: mensagens-modelo da Biblioteca. build.py: monta o index.html. harness.py: simulador usado nos testes.
+logo_h.png e mono.png: logo dourada e monograma.
+
+Publicado em sistema/index.html (gerado por este build.py — rode
+"python3 build.py" de dentro desta pasta depois de editar qualquer
+arquivo fonte).
+
+Aviso: aberto direto no GitHub Pages (sem passar pelo Claude), as
+partes que dependem de claude.use("db"/"mcp"/"downloads") — Clientes
+do Tramitação, prazos/audiências, salvar atendimentos — ficam
+inativas e mostram o aviso "Entre na sua conta do Claude...". Os kits
+de documentos e a Biblioteca de mensagens funcionam normalmente sem
+Claude, pois são só JavaScript/dados locais.
