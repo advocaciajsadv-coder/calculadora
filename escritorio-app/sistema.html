@@ -936,7 +936,7 @@ async function criar(d){
   const agora=agoraIso();
   const log=d.logInicial||"Lead criado";d=Object.assign({},d);delete d.logInicial;
   const x=Object.assign(DEF(),d,{criadoEm:agora,atualizadoEm:agora,historico:[{em:agora,texto:log}]});
-  if(!col){aviso("Entre na sua conta do Claude para salvar.");return null}
+  if(!col){aviso("Não foi possível conectar ao banco de dados.");return null}
   try{const ref=await col.add(x);return ref.id}catch(e){aviso("Não foi possível criar agora ("+(e&&e.code||"erro")+").");return null}
 }
 
@@ -2483,11 +2483,69 @@ setInterval(relogio,1000);relogio();
 $("#tema").onclick=()=>{const r=document.documentElement;const escuro=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=escuro?"light":"dark";try{localStorage.setItem("tema",r.dataset.theme)}catch(e){}};
 try{const t=localStorage.getItem("tema");if(t)document.documentElement.dataset.theme=t}catch(e){}
 
+/* ---------- banco de dados remoto (API /api/dados, substitui claude.use("db")) ---------- */
+function criarDbRemoto(){
+  async function chamar(method,params,body){
+    const qs=params?('?'+new URLSearchParams(params).toString()):'';
+    const resp=await fetch('/api/dados'+qs,{
+      method,
+      headers:body?{'Content-Type':'application/json'}:undefined,
+      body:body?JSON.stringify(body):undefined
+    });
+    if(!resp.ok){const e=new Error('erro');e.code=resp.status;throw e}
+    return resp.json();
+  }
+  function docRef(colecao,id){
+    return{
+      set:(dados)=>chamar('PUT',null,{colecao,id,dados}),
+      update:(patch)=>chamar('PATCH',null,{colecao,id,patch}),
+      delete:()=>chamar('DELETE',{colecao,id}),
+      onSnapshot(cb,errCb){
+        let ultimo,parado=false;
+        async function tick(){
+          if(parado)return;
+          try{
+            const v=await chamar('GET',{colecao,id});
+            const atual=JSON.stringify(v);
+            if(atual!==ultimo){ultimo=atual;cb({data:()=>v===null?undefined:v})}
+          }catch(e){if(errCb)errCb(e)}
+          if(!parado)setTimeout(tick,5000)
+        }
+        tick();
+        return()=>{parado=true}
+      }
+    }
+  }
+  function colRef(nome){
+    return{
+      add:async(dados)=>({id:(await chamar('POST',null,{colecao:nome,dados})).id}),
+      doc:(id)=>docRef(nome,id),
+      onSnapshot(cb,errCb){
+        let ultimo,parado=false;
+        async function tick(){
+          if(parado)return;
+          try{
+            const lista=await chamar('GET',{colecao:nome});
+            const atual=JSON.stringify(lista);
+            if(atual!==ultimo){
+              ultimo=atual;
+              cb({docs:lista.map(it=>{const{id,...dados}=it;return{id,data:()=>dados}}),metadata:{fromCache:false}});
+            }
+          }catch(e){if(errCb)errCb(e)}
+          if(!parado)setTimeout(tick,5000)
+        }
+        tick();
+        return()=>{parado=true}
+      }
+    }
+  }
+  return{collection:colRef};
+}
+
 /* ---------- início ---------- */
 (()=>{const h=(location.hash||"").replace(/^#/,"");if(h&&h!=="/")go(h);else render(true)})();
 (async()=>{
-  try{db=await claude.use("db")}catch(e){db=null}
-  if(!db){aviso("Entre na sua conta do Claude para ver e salvar os atendimentos.");return}
+  db=criarDbRemoto();
   col=db.collection("comercial");
   try{db.collection("config").doc("checklists").onSnapshot(d=>{const v=d&&d.data&&d.data();cfgCk=(v&&v.tipos)||{};render(false)},()=>{})}catch(e){}
   try{db.collection("config").doc("checklistsDocs").onSnapshot(d=>{const v=d&&d.data&&d.data();cfgDocs=(v&&v.tipos)||{};render(false)},()=>{})}catch(e){}
