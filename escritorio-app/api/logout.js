@@ -1,4 +1,4 @@
-export default async function handler(request) {
+export async function POST() {
   const headers = new Headers();
   headers.set('Content-Type', 'application/json');
   headers.append('Set-Cookie', 'sessao=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');

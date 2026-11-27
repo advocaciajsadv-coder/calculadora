@@ -6,7 +6,7 @@ function getCookie(request, name) {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
-export default async function handler(request) {
+export async function GET(request) {
   const token = getCookie(request, 'sessao');
   if (!token) {
     return new Response(JSON.stringify({ autenticado: false }), { status: 401 });
