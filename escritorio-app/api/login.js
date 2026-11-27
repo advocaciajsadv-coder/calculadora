@@ -1,11 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { SignJWT } from 'jose';
 
-export default async function handler(request) {
-  if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ erro: 'Método não permitido' }), { status: 405 });
-  }
-
+export async function POST(request) {
   let body;
   try {
     body = await request.json();

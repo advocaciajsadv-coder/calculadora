@@ -1,1 +1,1 @@
-export { default } from '../escritorio-app/api/login.js';
+export { POST } from '../escritorio-app/api/login.js';
