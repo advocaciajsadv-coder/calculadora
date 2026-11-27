@@ -112,6 +112,8 @@
       erro.textContent = '';
       btn.disabled = true;
       btn.textContent = 'Entrando...';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
       try {
         const resp = await fetch('/api/login', {
           method: 'POST',
@@ -120,8 +122,25 @@
             usuario: document.getElementById('usuario').value,
             senha: document.getElementById('senha').value,
           }),
+          signal: controller.signal,
+          redirect: 'manual',
         });
-        const dados = await resp.json();
+        clearTimeout(timeoutId);
+        if (resp.type === 'opaqueredirect' || resp.status === 0) {
+          erro.textContent = 'Sessão redirecionada de forma inesperada. Avise o suporte.';
+          btn.disabled = false;
+          btn.textContent = 'Entrar';
+          return;
+        }
+        let dados = {};
+        try {
+          dados = await resp.json();
+        } catch {
+          erro.textContent = 'Resposta inesperada do servidor (' + resp.status + ').';
+          btn.disabled = false;
+          btn.textContent = 'Entrar';
+          return;
+        }
         if (!resp.ok) {
           erro.textContent = dados.erro || 'Não foi possível entrar.';
           btn.disabled = false;
@@ -132,7 +151,10 @@
         const destino = params.get('redirect') || '/sistema.html';
         location.href = destino;
       } catch (err) {
-        erro.textContent = 'Erro de conexão. Tente novamente.';
+        clearTimeout(timeoutId);
+        erro.textContent = err && err.name === 'AbortError'
+          ? 'Demorou demais pra responder. Tente novamente.'
+          : 'Erro de conexão. Tente novamente.';
         btn.disabled = false;
         btn.textContent = 'Entrar';
       }
